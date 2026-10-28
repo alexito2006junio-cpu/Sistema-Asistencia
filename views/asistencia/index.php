@@ -3,6 +3,10 @@
 /** @var mysqli_result|false $practicantes */
 ?>
 
+<?php
+$paginaActual = $_GET["pagina"] ?? "asistencia";
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -19,23 +23,21 @@
 
     <style>
         .navbar {
-            background-color: #000000 !important;
+            background-color: #111;
         }
 
         .navbar-brand {
             color: #ff8800 !important;
+            font-weight: bold;
         }
 
-        .navbar-brand:hover {
-            color: #ff8800 !important;
+        .navbar .nav-link {
+            color: #fff !important;
+            transition: color 0.2s;
         }
 
-        .nav-link {
-            color: #ffffff !important;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
+        .navbar .nav-link.active,
+        .navbar .nav-link:hover {
             color: #ff8800 !important;
         }
 
@@ -79,39 +81,50 @@
                 ISHUME - Productora Audiovisual
             </a>
 
-            <button
-                class="navbar-toggler"
-                type="button"
+      <button class="navbar-toggler" type="button"
                 data-bs-toggle="collapse"
-                data-bs-target="#navbarSistema">
+                data-bs-target="#navbarPrincipal"
+                aria-controls="navbarPrincipal"
+                aria-expanded="false"
+                aria-label="Mostrar navegación">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarSistema">
 
+
                 <ul class="navbar-nav ms-auto">
 
-                    <!-- INICIO -->
                     <li class="nav-item">
-                        <a class="nav-link active" href="/Sistema_horario/">
+                        <a class="nav-link <?= $paginaActual === 'asistencia' ? 'active' : '' ?>"
+                            href="/Sistema_horario/">
                             Inicio
                         </a>
                     </li>
 
-                    <!-- PRACTICANTES -->
                     <li class="nav-item">
-                        <a class="nav-link" href="/Sistema_horario/?pagina=practicantes">
+                        <a class="nav-link <?= $paginaActual === 'practicantes' ? 'active' : '' ?>"
+                            href="index.php?pagina=practicantes">
                             Practicantes
                         </a>
                     </li>
+
                     <li class="nav-item">
-                        <a class="nav-link" href="/Sistema_horario/?pagina=historial">
+                        <a class="nav-link <?= $paginaActual === 'historial' ? 'active' : '' ?>"
+                            href="index.php?pagina=historial">
                             Historial
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link <?= $paginaActual === 'evaluacion' ? 'active' : '' ?>"
+                            href="index.php?pagina=evaluacion">
+                            Notas
+                        </a>
+                    </li>
 
                 </ul>
+
 
             </div>
         </div>
@@ -535,9 +548,21 @@
     <script>
         const botones = document.querySelectorAll(".btn-practicante");
 
+        // Evita que el nombre se interprete como HTML dentro de las alertas
+        function escaparHtml(texto) {
+            const div = document.createElement("div");
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
         botones.forEach(function(boton) {
 
             boton.addEventListener("click", function() {
+
+                // Si ya registró su entrada (o ya terminó), no se hace nada
+                if (!this.textContent.includes("Seleccionar para registrar entrada")) {
+                    return;
+                }
 
                 const id = this.dataset.id;
                 const nombre = this.dataset.nombre;
@@ -573,7 +598,7 @@
                                 Swal.fire({
                                     icon: "success",
                                     title: "¡Asistencia registrada!",
-                                    html: "<b>" + nombre + "</b><br><br>" +
+                                    html: "<b>" + escaparHtml(nombre) + "</b><br><br>" +
                                         "Hora programada: <b>" + data.hora_programada + "</b><br>" +
                                         "Hora de llegada: <b>" + data.hora_llegada + "</b><br>" +
                                         "Estado: <b>" + data.estado + "</b>",

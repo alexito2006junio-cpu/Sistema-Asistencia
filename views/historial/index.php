@@ -2,6 +2,9 @@
 
 /** @var mysqli_result|false $historial */
 ?>
+<?php
+$paginaActual = $_GET["pagina"] ?? "historial";
+?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -22,15 +25,21 @@
         }
 
         .navbar {
-            background-color: #000000 !important;
+            background-color: #111;
         }
 
-        .navbar-brand,
-        .nav-link {
+        .navbar-brand {
             color: #ff8800 !important;
+            font-weight: bold;
         }
 
-        .nav-link:hover {
+        .navbar .nav-link {
+            color: #fff !important;
+            transition: color 0.2s;
+        }
+
+        .navbar .nav-link.active,
+        .navbar .nav-link:hover {
             color: #ff8800 !important;
         }
 
@@ -74,37 +83,50 @@
                 ISHUME - Productora Audiovisual
             </a>
 
-            <button
-                class="navbar-toggler"
-                type="button"
+            <button class="navbar-toggler" type="button"
                 data-bs-toggle="collapse"
-                data-bs-target="#menu">
+                data-bs-target="#navbarPrincipal"
+                aria-controls="navbarPrincipal"
+                aria-expanded="false"
+                aria-label="Mostrar navegación">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="menu">
 
+
                 <ul class="navbar-nav ms-auto">
 
                     <li class="nav-item">
-                        <a class="nav-link" href="/Sistema_horario/">
+                        <a class="nav-link <?= $paginaActual === 'asistencia' ? 'active' : '' ?>"
+                            href="/Sistema_horario/">
                             Inicio
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="/Sistema_horario/?pagina=practicantes">
+                        <a class="nav-link <?= $paginaActual === 'practicantes' ? 'active' : '' ?>"
+                            href="index.php?pagina=practicantes">
                             Practicantes
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link active" href="/Sistema_horario/?pagina=historial">
+                        <a class="nav-link <?= $paginaActual === 'historial' ? 'active' : '' ?>"
+                            href="index.php?pagina=historial">
                             Historial
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link <?= $paginaActual === 'evaluacion' ? 'active' : '' ?>"
+                            href="index.php?pagina=evaluacion">
+                            Notas
+                        </a>
+                    </li>
+
                 </ul>
+
 
             </div>
 
@@ -238,10 +260,10 @@
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars($registro["hora_llegada"]) ?>
+                                        <?= htmlspecialchars($registro["hora_llegada"] ?? "") ?>
                                     </td>
                                     <td>
-                                        <?= htmlspecialchars($registro["hora_salida"]) ?>
+                                        <?= htmlspecialchars($registro["hora_salida"] ?? "") ?>
                                     </td>
 
                                     <td>
@@ -255,8 +277,15 @@
                                             echo '<span class="estado-tardanza">TARDANZA</span>';
                                         } elseif ($estado === "ADELANTADO") {
                                             echo '<span class="estado-adelantado">ADELANTADO</span>';
+                                        } elseif ($estado === "JUSTIFICADO") {
+                                            echo '<span class="badge text-bg-info">JUSTIFICADO</span>';
+                                            if (!empty($registro["motivo"])) {
+                                                echo '<div class="small text-muted">' .
+                                                    htmlspecialchars($registro["motivo"]) .
+                                                    '</div>';
+                                            }
                                         } else {
-                                            echo htmlspecialchars($estado);
+                                            echo htmlspecialchars($estado ?? "");
                                         }
                                         ?>
 
@@ -269,7 +298,7 @@
                         <?php else: ?>
 
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">
+                                <td colspan="5" class="text-center text-muted py-4">
                                     No hay registros de asistencia.
                                 </td>
                             </tr>

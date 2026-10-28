@@ -17,27 +17,14 @@ class HistorialController
         $hasta = $_GET["hasta"] ?? "";
         $mes = $_GET["mes"] ?? "";
 
-        // Variable para el resumen mensual
-        $resumenMensual = [];
-
-        // Si se seleccionó un mes
+        // Si se seleccionó un mes, se calcula su rango de fechas.
         if ($mes !== "") {
 
-            $fecha = DateTime::createFromFormat("Y-m", $mes);
+            $fecha = DateTime::createFromFormat("!Y-m", $mes);
 
-            if ($fecha) {
-
-                // Primer día del mes
+            if ($fecha && $fecha->format("Y-m") === $mes) {
                 $desde = $fecha->format("Y-m-01");
-
-                // Último día del mes
                 $hasta = $fecha->format("Y-m-t");
-
-                // Obtener resumen de faltas y tardanzas
-                $resumenMensual = $this->modelo->obtenerResumenMensual(
-                    (int)$fecha->format("m"),
-                    (int)$fecha->format("Y")
-                );
             }
         }
 
@@ -113,7 +100,8 @@ class HistorialController
             "Fecha",
             "Hora de entrada",
             "Hora de salida",
-            "Estado"
+            "Estado",
+            "Motivo"
         ], ";");
 
         // Escribir los registros del historial.
@@ -124,7 +112,8 @@ class HistorialController
                 $fila["fecha"] ?? "",
                 $fila["hora_llegada"] ?? "",
                 $fila["hora_salida"] ?? "",
-                $fila["estado"] ?? ""
+                $fila["estado"] ?? "",
+                $fila["motivo"] ?? ""
             ], ";");
         }
 

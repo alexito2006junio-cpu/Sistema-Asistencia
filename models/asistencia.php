@@ -14,10 +14,12 @@ class Asistencia
     // =========================================================
     public function yaRegistroHoy($id_practicante, $fecha)
     {
+        // Un día JUSTIFICADO no cuenta como asistencia registrada.
         $sql = "SELECT id_asistencia
                 FROM Asistencia
                 WHERE id_practicante = ?
-                AND fecha = ?";
+                AND fecha = ?
+                AND (estado IS NULL OR estado <> 'JUSTIFICADO')";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param("is", $id_practicante, $fecha);
@@ -99,9 +101,11 @@ class Asistencia
     public function registrarSalida($id_practicante, $fecha, $hora_salida)
     {
         $sql = "UPDATE Asistencia
-            SET hora_salida = ?
+            SET hora_salida = ?,
+                horas_trabajadas = TIMEDIFF(?, hora_llegada)
             WHERE id_practicante = ?
             AND fecha = ?
+            AND hora_llegada IS NOT NULL
             AND hora_salida IS NULL";
 
         $stmt = $this->conexion->prepare($sql);
@@ -111,7 +115,8 @@ class Asistencia
         }
 
         $stmt->bind_param(
-            "sis",
+            "ssis",
+            $hora_salida,
             $hora_salida,
             $id_practicante,
             $fecha
@@ -120,6 +125,26 @@ class Asistencia
         if (!$stmt->execute()) {
             return false;
         }
+
+        return $stmt->affected_rows > 0;
+    }
+
+
+    // =========================================================
+    // QUITA LA JUSTIFICACIÓN DE UN DÍA (si existe).
+    // Se usa cuando el practicante sí asistió ese día, o
+    // cuando se justificó por error.
+    // =========================================================
+    public function eliminarJustificacion($id_practicante, $fecha)
+    {
+        $sql = "DELETE FROM Asistencia
+                WHERE id_practicante = ?
+                AND fecha = ?
+                AND estado = 'JUSTIFICADO'";
+
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("is", $id_practicante, $fecha);
+        $stmt->execute();
 
         return $stmt->affected_rows > 0;
     }
@@ -136,6 +161,7 @@ class Asistencia
                     a.hora_llegada,
                     a.hora_salida,
                     a.estado,
+                    a.motivo,
                     CONCAT(p.nombres, ' ', p.apellidos) AS practicante
                 FROM Asistencia a
                 INNER JOIN Practicantes p
@@ -163,332 +189,5 @@ class Asistencia
         }
 
         return $this->conexion->query($sql);
-    }
-
-    // =========================================================
-    // RESUMEN MENSUAL DE FALTAS Y TARDANZAS
-    //
-    // NO GUARDA PUNTOS.
-    // LOS CALCULA AUTOMÁTICAMENTE.
-    // =========================================================
-    public function obtenerResumenMensual($mes, $anio)
-    {
-        $fechaInicio = sprintf(
-            "%04d-%02d-01",
-            $anio,
-            $mes
-        );
-
-        $fechaFin = date(
-            "Y-m-t",
-            strtotime($fechaInicio)
-        );
-
-        /*
-         * Si estamos consultando el mes actual,
-         * no debemos contar como faltas los días futuros.
-         */
-        $hoy = date("Y-m-d");
-
-        if ($anio == date("Y") && $mes == date("m")) {
-
-            $fechaFin = $hoy;
-        }
-
-        // -----------------------------------------------------
-        // 1. OBTENER PRACTICANTES ACTIVOS
-        // -----------------------------------------------------
-        $sqlPracticantes = "SELECT
-                                id_practicante,
-                                nombres,
-                                apellidos
-                            FROM Practicantes
-                            WHERE activo = 1
-                            ORDER BY nombres, apellidos";
-
-        $resultadoPracticantes = $this->conexion->query(
-            $sqlPracticantes
-        );
-
-        if (!$resultadoPracticantes) {
-            return [];
-        }
-
-
-        // -----------------------------------------------------
-        // 2. OBTENER TODOS LOS HORARIOS
-        // -----------------------------------------------------
-        $sqlHorarios = "SELECT
-                            id_practicante,
-                            dia_semana
-                        FROM Horarios";
-
-        $resultadoHorarios = $this->conexion->query(
-            $sqlHorarios
-        );
-
-        $horarios = [];
-
-        if ($resultadoHorarios) {
-
-            while ($horario = $resultadoHorarios->fetch_assoc()) {
-
-                $id = $horario["id_practicante"];
-
-                $dia = strtoupper(
-                    trim($horario["dia_semana"])
-                );
-
-                /*
-                 * Normalizamos por si existen tildes.
-                 */
-                $dia = str_replace(
-                    ["Á", "É", "Í", "Ó", "Ú"],
-                    ["A", "E", "I", "O", "U"],
-                    $dia
-                );
-
-                $horarios[$id][$dia] = true;
-            }
-        }
-
-
-        // -----------------------------------------------------
-        // 3. OBTENER TODAS LAS ASISTENCIAS DEL MES
-        // -----------------------------------------------------
-        $asistencias = [];
-
-        $sqlAsistencias = "SELECT
-                                id_practicante,
-                                fecha,
-                                estado
-                           FROM Asistencia
-                           WHERE fecha BETWEEN ? AND ?";
-
-        $stmt = $this->conexion->prepare(
-            $sqlAsistencias
-        );
-
-        $stmt->bind_param(
-            "ss",
-            $fechaInicio,
-            $fechaFin
-        );
-
-        $stmt->execute();
-
-        $resultadoAsistencias = $stmt->get_result();
-
-        while ($asistencia = $resultadoAsistencias->fetch_assoc()) {
-
-            $id = $asistencia["id_practicante"];
-            $fecha = $asistencia["fecha"];
-
-            $asistencias[$id][$fecha] = $asistencia["estado"];
-        }
-
-
-        // -----------------------------------------------------
-        // 4. RECORRER CADA PRACTICANTE
-        // -----------------------------------------------------
-        $resumen = [];
-
-        while ($practicante = $resultadoPracticantes->fetch_assoc()) {
-
-            $id = $practicante["id_practicante"];
-
-            $nombreCompleto =
-                $practicante["nombres"] . " " .
-                $practicante["apellidos"];
-
-
-            $faltas = [];
-            $tardanzas = [];
-
-            // -------------------------------------------------
-            // RECORRER LOS DÍAS DEL MES
-            // -------------------------------------------------
-            $fechaActual = new DateTime($fechaInicio);
-            $fechaLimite = new DateTime($fechaFin);
-
-            while ($fechaActual <= $fechaLimite) {
-
-                $fecha = $fechaActual->format("Y-m-d");
-
-                /*
-                 * N:
-                 * 1 = Lunes
-                 * 2 = Martes
-                 * 3 = Miércoles
-                 * 4 = Jueves
-                 * 5 = Viernes
-                 * 6 = Sábado
-                 * 7 = Domingo
-                 */
-                $numeroDia = (int)$fechaActual->format("N");
-
-                $dias = [
-                    1 => "LUNES",
-                    2 => "MARTES",
-                    3 => "MIERCOLES",
-                    4 => "JUEVES",
-                    5 => "VIERNES",
-                    6 => "SABADO",
-                    7 => "DOMINGO"
-                ];
-
-                $diaSemana = $dias[$numeroDia];
-
-
-                // ---------------------------------------------
-                // ¿EL PRACTICANTE TENÍA HORARIO ESE DÍA?
-                // ---------------------------------------------
-                $teniaHorario =
-                    isset($horarios[$id][$diaSemana]);
-
-
-                if ($teniaHorario) {
-
-                    // -----------------------------------------
-                    // ¿TIENE REGISTRO DE ASISTENCIA?
-                    // -----------------------------------------
-                    if (!isset($asistencias[$id][$fecha])) {
-
-                        /*
-                         * No existe asistencia en un día
-                         * donde sí tenía horario.
-                         *
-                         * Por lo tanto:
-                         * FALTA = -3
-                         */
-                        $faltas[] = [
-                            "fecha" => $fecha,
-                            "estado" => "FALTA",
-                            "puntos" => -3
-                        ];
-                    } else {
-
-                        $estado =
-                            $asistencias[$id][$fecha];
-
-
-                        // -------------------------------------
-                        // TARDANZA
-                        // -------------------------------------
-                        if ($estado === "TARDANZA") {
-
-                            $tardanzas[] = [
-                                "fecha" => $fecha,
-                                "estado" => "TARDANZA",
-                                "puntos" => -2
-                            ];
-                        }
-
-                        /*
-                         * PUNTUAL y ADELANTADO
-                         * no generan puntos perdidos.
-                         */
-                    }
-                }
-
-                $fechaActual->modify("+1 day");
-            }
-
-
-            // -------------------------------------------------
-            // 5. CALCULAR PUNTOS PERDIDOS
-            // -------------------------------------------------
-            $cantidadFaltas =
-                count($faltas);
-
-            $cantidadTardanzas =
-                count($tardanzas);
-
-            $puntosFaltas =
-                $cantidadFaltas * 3;
-
-            $puntosTardanzas =
-                $cantidadTardanzas * 2;
-
-            $totalPerdido =
-                $puntosFaltas + $puntosTardanzas;
-
-
-            // -------------------------------------------------
-            // 6. DETECTAR 3 FALTAS EN UNA MISMA SEMANA
-            // -------------------------------------------------
-            $semanas = [];
-
-            foreach ($faltas as $falta) {
-
-                $fechaFalta = new DateTime(
-                    $falta["fecha"]
-                );
-
-                /*
-                 * "o-W" = año ISO + número de semana.
-                 *
-                 * Ejemplo:
-                 * 2026-37
-                 */
-                $semana = $fechaFalta->format("o-W");
-
-                if (!isset($semanas[$semana])) {
-                    $semanas[$semana] = 0;
-                }
-
-                $semanas[$semana]++;
-            }
-
-
-            $semanasDesaprobadas = [];
-
-            foreach ($semanas as $semana => $cantidad) {
-
-                if ($cantidad >= 3) {
-
-                    $semanasDesaprobadas[] = [
-                        "semana" => $semana,
-                        "faltas" => $cantidad
-                    ];
-                }
-            }
-
-
-            // -------------------------------------------------
-            // 7. GUARDAR RESULTADO DEL PRACTICANTE
-            // -------------------------------------------------
-            $resumen[] = [
-                "id_practicante" => $id,
-                "practicante" => $nombreCompleto,
-
-                "cantidad_faltas" =>
-                $cantidadFaltas,
-
-                "cantidad_tardanzas" =>
-                $cantidadTardanzas,
-
-                "puntos_faltas" =>
-                -$puntosFaltas,
-
-                "puntos_tardanzas" =>
-                -$puntosTardanzas,
-
-                "puntos_perdidos" =>
-                -$totalPerdido,
-
-                "faltas" =>
-                $faltas,
-
-                "tardanzas" =>
-                $tardanzas,
-
-                "semanas_desaprobadas" =>
-                $semanasDesaprobadas
-            ];
-        }
-
-
-        return $resumen;
     }
 }

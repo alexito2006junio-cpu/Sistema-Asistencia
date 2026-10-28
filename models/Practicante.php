@@ -125,91 +125,146 @@ class Practicante
     }
 
 
-    public function actualizarDiasTrabajo($id, $dias)
+    // ¿Ya existe otro practicante con ese DNI?
+    public function existeDni($dni, $excluirId = 0)
     {
-        $permitidos = [
-            "LUNES",
-            "MARTES",
-            "MIERCOLES",
-            "JUEVES",
-            "VIERNES",
-            "SABADO",
-            "DOMINGO"
-        ];
-
-        // Obtener los horarios actuales
         $stmt = $this->conexion->prepare(
-            "SELECT dia_semana, hora_entrada, hora_salida
-         FROM Horarios
-         WHERE id_practicante = ?"
+            "SELECT id_practicante
+             FROM Practicantes
+             WHERE dni = ?
+             AND id_practicante <> ?"
         );
 
-        $stmt->bind_param("i", $id);
+        $stmt->bind_param("si", $dni, $excluirId);
         $stmt->execute();
-        $resultado = $stmt->get_result();
 
-        $actuales = [];
+        return $stmt->get_result()->num_rows > 0;
+    }
 
-        while ($fila = $resultado->fetch_assoc()) {
-            $actuales[$fila["dia_semana"]] = $fila;
+
+    // Suma las horas de todos los días y devuelve "HH:MM:SS"
+    // $horarios = ["LUNES" => ["08:00:00", "13:00:00"], ...]
+    public function calcularHorasSemanales($horarios)
+    {
+        $segundos = 0;
+
+        foreach ($horarios as $horario) {
+            $segundos += strtotime("1970-01-01 " . $horario[1] . " UTC")
+                - strtotime("1970-01-01 " . $horario[0] . " UTC");
         }
 
-        $stmt->close();
+        return sprintf(
+            "%02d:%02d:00",
+            floor($segundos / 3600),
+            floor(($segundos % 3600) / 60)
+        );
+    }
 
-        // Validar los días seleccionados
-        $dias = array_values(array_unique($dias));
 
-        foreach ($dias as $dia) {
-            if (!in_array($dia, $permitidos, true)) {
-                return false;
-            }
-        }
+    // Crea el practicante junto con sus horarios.
+    // Devuelve true si todo salió bien.
+    public function crear($nombres, $apellidos, $dni, $carrera, $semestre, $horarios)
+    {
+        $horas = $this->calcularHorasSemanales($horarios);
 
         $this->conexion->begin_transaction();
 
         try {
-            // Eliminar solamente los días desmarcados
-            foreach ($actuales as $dia => $horario) {
-                if (!in_array($dia, $dias, true)) {
-                    $stmt = $this->conexion->prepare(
-                        "DELETE FROM Horarios
-                     WHERE id_practicante = ? AND dia_semana = ?"
-                    );
-
-                    $stmt->bind_param("is", $id, $dia);
-                    $stmt->execute();
-                    $stmt->close();
-                }
-            }
-
-            // Agregar los días nuevos conservando sus horas existentes
-            // para los días que ya estaban registrados.
             $stmt = $this->conexion->prepare(
-                "INSERT INTO Horarios
-             (id_practicante, dia_semana, hora_entrada, hora_salida)
-             VALUES (?, ?, ?, ?)"
+                "INSERT INTO Practicantes
+                 (nombres, apellidos, dni, carrera, semestre, horas_semanales, activo)
+                 VALUES (?, ?, ?, ?, ?, ?, 1)"
             );
 
-            foreach ($dias as $dia) {
-                if (isset($actuales[$dia])) {
-                    continue;
-                }
+            $stmt->bind_param(
+                "ssssss",
+                $nombres,
+                $apellidos,
+                $dni,
+                $carrera,
+                $semestre,
+                $horas
+            );
 
-                // Un día nuevo necesita horas definidas.
-                // Por ahora no se inventan ni se copian horas.
-                throw new Exception(
-                    "El día nuevo " . $dia .
-                        " necesita un horario de entrada y salida."
-                );
-            }
+            $this->ejecutar($stmt);
 
+            $id = $this->conexion->insert_id;
             $stmt->close();
+
+            $this->guardarHorarios($id, $horarios);
+
             $this->conexion->commit();
 
             return true;
         } catch (Throwable $e) {
             $this->conexion->rollback();
+
             return false;
+        }
+    }
+
+
+    // Reemplaza todos los horarios del practicante por los nuevos
+    // y actualiza sus horas semanales.
+    public function actualizarHorarios($id, $horarios)
+    {
+        $horas = $this->calcularHorasSemanales($horarios);
+
+        $this->conexion->begin_transaction();
+
+        try {
+            $stmt = $this->conexion->prepare(
+                "DELETE FROM Horarios WHERE id_practicante = ?"
+            );
+            $stmt->bind_param("i", $id);
+            $this->ejecutar($stmt);
+            $stmt->close();
+
+            $this->guardarHorarios($id, $horarios);
+
+            $stmt = $this->conexion->prepare(
+                "UPDATE Practicantes
+                 SET horas_semanales = ?
+                 WHERE id_practicante = ?"
+            );
+            $stmt->bind_param("si", $horas, $id);
+            $this->ejecutar($stmt);
+            $stmt->close();
+
+            $this->conexion->commit();
+
+            return true;
+        } catch (Throwable $e) {
+            $this->conexion->rollback();
+
+            return false;
+        }
+    }
+
+
+    private function guardarHorarios($id, $horarios)
+    {
+        $stmt = $this->conexion->prepare(
+            "INSERT INTO Horarios
+             (id_practicante, dia_semana, hora_entrada, hora_salida)
+             VALUES (?, ?, ?, ?)"
+        );
+
+        foreach ($horarios as $dia => $horario) {
+            $stmt->bind_param("isss", $id, $dia, $horario[0], $horario[1]);
+            $this->ejecutar($stmt);
+        }
+
+        $stmt->close();
+    }
+
+
+    // Ejecuta una consulta y lanza un error si falla,
+    // para que la transacción se deshaga completa.
+    private function ejecutar($stmt)
+    {
+        if (!$stmt->execute()) {
+            throw new Exception($stmt->error);
         }
     }
 }

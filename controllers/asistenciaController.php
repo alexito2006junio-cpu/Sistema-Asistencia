@@ -129,6 +129,13 @@ class AsistenciaController
             $estado = "TARDANZA";
         }
 
+        // Si ese día estaba justificado pero el practicante sí vino,
+        // su marcación reemplaza la justificación.
+        $this->modeloAsistencia->eliminarJustificacion(
+            $id_practicante,
+            $fecha
+        );
+
         // Registrar
         $resultado = $this->modeloAsistencia->registrar(
             $id_practicante,

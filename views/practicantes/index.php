@@ -4,8 +4,14 @@
 
 $mensaje = $_GET["mensaje"] ?? "";
 ?>
+<?php
+$paginaActual = $_GET["pagina"] ?? "practicantes";
+?>
+
+
 
 <!DOCTYPE html>
+
 <html lang="es">
 
 <head>
@@ -23,23 +29,21 @@ $mensaje = $_GET["mensaje"] ?? "";
 
     <style>
         .navbar {
-            background-color: #000000 !important;
+            background-color: #111;
         }
 
         .navbar-brand {
             color: #ff8800 !important;
+            font-weight: bold;
         }
 
-        .navbar-brand:hover {
-            color: #ff8800 !important;
+        .navbar .nav-link {
+            color: #fff !important;
+            transition: color 0.2s;
         }
 
-        .nav-link {
-            color: #ffffff !important;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
+        .navbar .nav-link.active,
+        .navbar .nav-link:hover {
             color: #ff8800 !important;
         }
     </style>
@@ -53,39 +57,50 @@ $mensaje = $_GET["mensaje"] ?? "";
                 ISHUME - Productora Audiovisual
             </a>
 
-            <button
-                class="navbar-toggler"
-                type="button"
+           <button class="navbar-toggler" type="button"
                 data-bs-toggle="collapse"
-                data-bs-target="#navbarSistema">
+                data-bs-target="#navbarPrincipal"
+                aria-controls="navbarPrincipal"
+                aria-expanded="false"
+                aria-label="Mostrar navegación">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarSistema">
 
+
                 <ul class="navbar-nav ms-auto">
 
-                    <!-- INICIO -->
                     <li class="nav-item">
-                        <a class="nav-link active" href="/Sistema_horario/">
+                        <a class="nav-link <?= $paginaActual === 'asistencia' ? 'active' : '' ?>"
+                            href="/Sistema_horario/">
                             Inicio
                         </a>
                     </li>
 
-                    <!-- PRACTICANTES -->
                     <li class="nav-item">
-                        <a class="nav-link" href="/Sistema_horario/?pagina=practicantes">
+                        <a class="nav-link <?= $paginaActual === 'practicantes' ? 'active' : '' ?>"
+                            href="index.php?pagina=practicantes">
                             Practicantes
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link active" href="/Sistema_horario/?pagina=historial">
+                        <a class="nav-link <?= $paginaActual === 'historial' ? 'active' : '' ?>"
+                            href="index.php?pagina=historial">
                             Historial
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link <?= $paginaActual === 'evaluacion' ? 'active' : '' ?>"
+                            href="index.php?pagina=evaluacion">
+                            Notas
+                        </a>
+                    </li>
+
                 </ul>
+
 
             </div>
         </div>
@@ -204,17 +219,19 @@ $mensaje = $_GET["mensaje"] ?? "";
                                                 data-horarios="<?= htmlspecialchars(json_encode($horariosPorPracticante[$practicante['id_practicante']] ?? []), ENT_QUOTES, 'UTF-8') ?>">
                                                 Editar
                                             </button>
-                                            
-
-                                            </button>
 
                                             <form method="POST" action="index.php?pagina=practicantes&accion=cambiarEstado" style="display:inline;">
                                                 <input type="hidden" name="id_practicante" value="<?= $practicante['id_practicante'] ?>">
-                                                <input type="hidden" name="activo" value="0">
-
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    Inactivar
-                                                </button>
+                                                <input type="hidden" name="activo" value="<?= $practicante['activo'] ? 0 : 1 ?>">
+                                                <?php if ($practicante['activo']): ?>
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        Inactivar
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        Activar
+                                                    </button>
+                                                <?php endif; ?>
                                             </form>
 
                                         </td>
@@ -274,7 +291,7 @@ $mensaje = $_GET["mensaje"] ?? "";
 
                 </div>
 
-                <form method="POST" action="">
+                <form method="POST" action="index.php?pagina=practicantes&accion=crear">
 
                     <div class="modal-body">
 
@@ -354,22 +371,27 @@ $mensaje = $_GET["mensaje"] ?? "";
 
                             </div>
 
-                            <!-- Horas semanales -->
+                            <!-- Semestre -->
                             <div class="col-md-6">
-
-                                <label for="horas_semanales" class="form-label">
-                                    Horas semanales
+                                <label for="semestre" class="form-label">
+                                    Semestre
                                 </label>
-
                                 <input
                                     type="text"
                                     class="form-control"
-                                    id="horas_semanales"
-                                    name="horas_semanales"
+                                    id="semestre"
+                                    name="semestre"
+                                    maxlength="20"
+                                    placeholder="Ejemplo: 4TO"
                                     required>
-
                             </div>
 
+
+
+                        </div>
+
+                        <div class="mt-3">
+                            <?php $prefijo = "nuevo"; include __DIR__ . "/_horarios.php"; ?>
                         </div>
 
                     </div>
@@ -480,77 +502,9 @@ $mensaje = $_GET["mensaje"] ?? "";
                                 required>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Horas semanales</label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                name="horas_semanales"
-                                id="editar_horas"
-                                required>
-                        </div>
 
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Días y horarios de trabajo</label>
-
-                            <?php
-                            $diasSemana = [
-                                "LUNES",
-                                "MARTES",
-                                "MIERCOLES",
-                                "JUEVES",
-                                "VIERNES",
-                                "SABADO",
-                                "DOMINGO"
-                            ];
-                            ?>
-
-                            <?php foreach ($diasSemana as $dia): ?>
-                                <div class="border rounded p-3 mb-2">
-                                    <div class="form-check mb-2">
-                                        <input
-                                            class="form-check-input dia-horario"
-                                            type="checkbox"
-                                            name="dias[]"
-                                            value="<?= $dia ?>"
-                                            id="editar_dia_<?= $dia ?>">
-
-                                        <label
-                                            class="form-check-label fw-bold"
-                                            for="editar_dia_<?= $dia ?>">
-                                            <?= ucfirst(strtolower($dia)) ?>
-                                        </label>
-                                    </div>
-
-                                    <div class="row g-2">
-                                        <div class="col-6">
-                                            <label class="form-label">Hora de entrada</label>
-                                            <input
-                                                type="time"
-                                                class="form-control hora-entrada"
-                                                name="horarios[<?= $dia ?>][hora_entrada]"
-                                                id="entrada_<?= $dia ?>"
-                                                step="60">
-                                        </div>
-
-                                        <div class="col-6">
-                                            <label class="form-label">Hora de salida</label>
-                                            <input
-                                                type="time"
-                                                class="form-control hora-salida"
-                                                name="horarios[<?= $dia ?>][hora_salida]"
-                                                id="salida_<?= $dia ?>"
-                                                step="60">
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-
-
-
+                        <?php $prefijo = "editar"; include __DIR__ . "/_horarios.php"; ?>
 
                         <div class="mb-3">
                             <label class="form-label">Estado</label>
@@ -680,6 +634,18 @@ $mensaje = $_GET["mensaje"] ?? "";
                 return;
             }
 
+            // Debe tener al menos un día de trabajo
+            if (!formulario.querySelector('.dia-horario:checked')) {
+                event.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Faltan los días de trabajo',
+                    text: 'Marca al menos un día y escribe su hora de entrada y de salida.',
+                    confirmButtonText: 'Entendido'
+                });
+                return;
+            }
+
         });
     </script>
 
@@ -689,6 +655,30 @@ $mensaje = $_GET["mensaje"] ?? "";
     </script>
 
 
+    <script>
+        // Al marcar un día se habilitan sus horas; al desmarcarlo se limpian.
+        function sincronizarDia(checkbox) {
+            const prefijo = checkbox.id.split("_dia_")[0];
+            const dia = checkbox.dataset.dia;
+
+            ["entrada", "salida"].forEach(function(tipo) {
+                const campo = document.getElementById(prefijo + "_" + tipo + "_" + dia);
+
+                campo.disabled = !checkbox.checked;
+                campo.required = checkbox.checked;
+
+                if (!checkbox.checked) {
+                    campo.value = "";
+                }
+            });
+        }
+
+        document.querySelectorAll(".dia-horario").forEach(function(checkbox) {
+            checkbox.addEventListener("change", function() {
+                sincronizarDia(checkbox);
+            });
+        });
+    </script>
     <script>
         const botonesEditar = document.querySelectorAll(".btn-editar");
 
@@ -702,26 +692,33 @@ $mensaje = $_GET["mensaje"] ?? "";
                 document.getElementById("editar_dni").value = this.dataset.dni;
                 document.getElementById("editar_carrera").value = this.dataset.carrera;
                 document.getElementById("editar_semestre").value = this.dataset.semestre;
-                document.getElementById("editar_horas").value = this.dataset.horas;
                 document.getElementById("editar_activo").value = this.dataset.activo;
 
 
                 const horarios = JSON.parse(this.dataset.horarios || "[]");
 
-                // Desmarcar los días antes de cargar otro practicante
-                document.querySelectorAll(".dia-horario").forEach(function(checkbox) {
+                // Limpiar los días antes de cargar otro practicante
+                document.querySelectorAll("#modalEditarPracticante .dia-horario").forEach(function(checkbox) {
                     checkbox.checked = false;
+                    sincronizarDia(checkbox);
                 });
 
-                // Marcar los días que ya tiene asignados
+                // Marcar los días que ya tiene y mostrar sus horas
                 horarios.forEach(function(horario) {
-                    const checkbox = document.getElementById(
-                        "editar_dia_" + horario.dia_semana
-                    );
+                    const checkbox = document.getElementById("editar_dia_" + horario.dia_semana);
 
-                    if (checkbox) {
-                        checkbox.checked = true;
+                    if (!checkbox) {
+                        return;
                     }
+
+                    checkbox.checked = true;
+                    sincronizarDia(checkbox);
+
+                    document.getElementById("editar_entrada_" + horario.dia_semana).value =
+                        (horario.hora_entrada || "").substring(0, 5);
+
+                    document.getElementById("editar_salida_" + horario.dia_semana).value =
+                        (horario.hora_salida || "").substring(0, 5);
                 });
 
                 const modal = new bootstrap.Modal(
@@ -734,6 +731,27 @@ $mensaje = $_GET["mensaje"] ?? "";
         });
     </script>
     <script>
+        <?php if ($mensaje === "creado"): ?>
+            Swal.fire({
+                icon: "success",
+                title: "¡Practicante agregado!",
+                text: "El practicante se registró correctamente.",
+                confirmButtonColor: "#ff8800"
+            });
+        <?php endif; ?>
+
+        <?php if ($mensaje === "error"): ?>
+            Swal.fire({
+                icon: "error",
+                title: "No se pudo guardar",
+                text: <?= json_encode(
+                            $_GET["detalle"] ?? "Ocurrió un error.",
+                            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+                        ) ?>,
+                confirmButtonColor: "#ff8800"
+            });
+        <?php endif; ?>
+
         <?php if ($mensaje === "actualizado"): ?>
             Swal.fire({
                 icon: "success",
