@@ -69,8 +69,13 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
             border-color: #ff8800;
         }
     </style>
+    <link rel="stylesheet" href="public/css/responsive.css">
 </head>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 <body class="bg-light">
@@ -90,7 +95,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="collapse navbar-collapse" id="navbarSistema">
+            <div class="collapse navbar-collapse" id="navbarPrincipal">
 
 
                 <ul class="navbar-nav ms-auto">
@@ -135,7 +140,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
 
 
         <!-- Encabezado -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 
             <div>
                 <h2 class="fw-bold mb-1">

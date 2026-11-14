@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Bloque "Días y horarios de trabajo".
+ * Se usa en el modal de agregar y en el de editar.
+ * Recibe $prefijo ("nuevo" o "editar") para que los id no se repitan.
+ */
 $diasSemana = [
     "LUNES",
     "MARTES",

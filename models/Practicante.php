@@ -9,11 +9,93 @@ class Practicante
         $this->conexion = $conexion;
     }
 
-    public function obtenerTodos()
+    // Si se indica un período, solo trae los de ese período.
+    // Primero van los activos y al final los retirados.
+    public function obtenerTodos($periodo = null)
     {
-        $sql = "SELECT * FROM Practicantes ORDER BY id_practicante ASC";
+        $orden = "ORDER BY activo DESC, apellidos ASC, nombres ASC";
 
-        return $this->conexion->query($sql);
+        if ($periodo === null) {
+            return $this->conexion->query(
+                "SELECT * FROM Practicantes " . $orden
+            );
+        }
+
+        $stmt = $this->conexion->prepare(
+            "SELECT * FROM Practicantes WHERE periodo = ? " . $orden
+        );
+
+        $stmt->bind_param("s", $periodo);
+        $stmt->execute();
+
+        return $stmt->get_result();
+    }
+
+
+    // Lista de períodos que existen, del más nuevo al más antiguo:
+    // [["periodo" => "2026-II", "total" => 24, "activos" => 22], ...]
+    public function obtenerPeriodos()
+    {
+        try {
+            $resultado = $this->conexion->query(
+                "SELECT periodo,
+                        COUNT(*) AS total,
+                        SUM(activo = 1) AS activos
+                 FROM Practicantes
+                 WHERE periodo IS NOT NULL AND periodo <> ''
+                 GROUP BY periodo
+                 ORDER BY periodo DESC"
+            );
+        } catch (Throwable $e) {
+            $resultado = false;
+        }
+
+        if (!$resultado) {
+            exit("Falta ejecutar el archivo migracion_periodos.sql en la base de datos "
+                . "(agrega la columna «periodo» a la tabla Practicantes).");
+        }
+
+        $periodos = [];
+
+        while ($fila = $resultado->fetch_assoc()) {
+            $periodos[] = [
+                "periodo" => $fila["periodo"],
+                "total"   => (int)$fila["total"],
+                "activos" => (int)$fila["activos"]
+            ];
+        }
+
+        return $periodos;
+    }
+
+
+    public function actualizarPeriodo($id, $periodo)
+    {
+        $stmt = $this->conexion->prepare(
+            "UPDATE Practicantes SET periodo = ? WHERE id_practicante = ?"
+        );
+
+        $stmt->bind_param("si", $periodo, $id);
+
+        return $stmt->execute();
+    }
+
+
+    // Pasa a los practicantes ACTIVOS de un período a otro.
+    // Los retirados se quedan donde estaban.
+    // Devuelve cuántos se pasaron.
+    public function moverActivos($desde, $hacia)
+    {
+        $stmt = $this->conexion->prepare(
+            "UPDATE Practicantes
+             SET periodo = ?
+             WHERE periodo = ? AND activo = 1"
+        );
+
+        $stmt->bind_param("ss", $hacia, $desde);
+        $stmt->execute();
+
+        return $stmt->affected_rows;
     }
 
 
@@ -163,7 +245,7 @@ class Practicante
 
     // Crea el practicante junto con sus horarios.
     // Devuelve true si todo salió bien.
-    public function crear($nombres, $apellidos, $dni, $carrera, $semestre, $horarios)
+    public function crear($nombres, $apellidos, $dni, $carrera, $semestre, $horarios, $periodo)
     {
         $horas = $this->calcularHorasSemanales($horarios);
 
@@ -172,17 +254,18 @@ class Practicante
         try {
             $stmt = $this->conexion->prepare(
                 "INSERT INTO Practicantes
-                 (nombres, apellidos, dni, carrera, semestre, horas_semanales, activo)
-                 VALUES (?, ?, ?, ?, ?, ?, 1)"
+                 (nombres, apellidos, dni, carrera, semestre, periodo, horas_semanales, activo)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 1)"
             );
 
             $stmt->bind_param(
-                "ssssss",
+                "sssssss",
                 $nombres,
                 $apellidos,
                 $dni,
                 $carrera,
                 $semestre,
+                $periodo,
                 $horas
             );
 

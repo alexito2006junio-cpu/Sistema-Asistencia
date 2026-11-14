@@ -1,0 +1,229 @@
+/* =========================================================
+   ADAPTACIÓN PARA CELULARES Y TABLETS
+   Se carga en todas las pantallas del sistema.
+   Colores de la empresa: negro #111 y naranja #ff8800.
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   TABLETS Y CELULARES (menos de 992px)
+   --------------------------------------------------------- */
+@media (max-width: 991.98px) {
+
+    /* Menú desplegable: botones fáciles de tocar */
+    .navbar .nav-link {
+        padding: 0.75rem 0;
+    }
+
+    .navbar-collapse {
+        border-top: 1px solid #333;
+        margin-top: 0.5rem;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   CELULARES Y TABLETS PEQUEÑAS (menos de 768px)
+   --------------------------------------------------------- */
+@media (max-width: 767.98px) {
+
+    /* Nombre de la empresa más corto para que quepa junto al botón */
+    .navbar-brand {
+        font-size: 1rem;
+        max-width: 75%;
+        white-space: normal;
+        line-height: 1.2;
+    }
+
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    h2,
+    .titulo {
+        font-size: 1.4rem;
+    }
+
+    .tabla-contenedor {
+        padding: 12px !important;
+    }
+
+    .card-body {
+        padding: 0.9rem;
+    }
+
+    /* Campos de texto a 16px: evita el zoom automático en iPhone */
+    .form-control,
+    .form-select {
+        font-size: 16px;
+    }
+
+    /* Lista de períodos: una sola fila que se desplaza hacia el lado */
+    .chips-periodo {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        width: 100%;
+        padding-bottom: 0.35rem;
+    }
+
+    .chips-periodo .chip-periodo {
+        flex: 0 0 auto;
+    }
+
+    /* Botones y enlaces de acción más cómodos al tocar */
+    .btn {
+        min-height: 40px;
+    }
+
+
+    /* ===== TABLAS: cada fila se convierte en una tarjeta ===== */
+    table.tabla-movil thead {
+        display: none;
+    }
+
+    table.tabla-movil,
+    table.tabla-movil > tbody,
+    table.tabla-movil > tbody > tr {
+        display: block;
+        width: 100%;
+    }
+
+    table.tabla-movil > tbody > tr {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-left: 4px solid #ff8800;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        padding: 0.25rem 0.9rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    table.tabla-movil > tbody > tr > td {
+        display: block;
+        position: relative;
+        padding: 0.55rem 0 0.55rem 42%;
+        min-height: 2.4rem;
+        border: 0;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: left !important;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    table.tabla-movil > tbody > tr > td:last-child {
+        border-bottom: 0;
+    }
+
+    /* Etiqueta de cada dato (sale del atributo data-label) */
+    table.tabla-movil > tbody > tr > td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        top: 0.55rem;
+        width: 38%;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    /* Celdas sin etiqueta (por ejemplo, los botones de acción) */
+    table.tabla-movil > tbody > tr > td[data-label=""] {
+        padding-left: 0;
+    }
+
+    table.tabla-movil > tbody > tr > td[data-label=""]::before {
+        display: none;
+    }
+
+    /* Celda de título (por ejemplo, el nombre del practicante) */
+    table.tabla-movil > tbody > tr > td.celda-titulo {
+        padding-left: 0;
+        font-weight: bold;
+        font-size: 1.05rem;
+    }
+
+    table.tabla-movil > tbody > tr > td.celda-titulo::before {
+        display: none;
+    }
+
+    /* Fila de "No hay registros" */
+    table.tabla-movil > tbody > tr > td[colspan] {
+        padding-left: 0;
+        text-align: center !important;
+    }
+
+    table.tabla-movil > tbody > tr > td[colspan]::before {
+        display: none;
+    }
+
+    /* Botones de acción: uno junto a otro, o en columna si no caben */
+    table.tabla-movil .acciones-fila {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    table.tabla-movil .acciones-fila form {
+        display: block !important;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   CELULARES (menos de 576px)
+   --------------------------------------------------------- */
+@media (max-width: 575.98px) {
+
+    /* Tarjetas de la pantalla de asistencia más compactas */
+    .btn-practicante {
+        padding: 0.75rem !important;
+    }
+
+    .btn-practicante .fs-1 {
+        font-size: 1.8rem !important;
+        margin-bottom: 0.15rem !important;
+    }
+
+    .btn-practicante .fs-5 {
+        font-size: 1rem !important;
+    }
+
+    .btn-practicante .btn-salida {
+        margin-top: 0.75rem !important;
+        min-height: 46px;
+    }
+
+    /* El reloj debajo del título, no al lado */
+    #reloj {
+        font-size: 1.6rem;
+    }
+
+    /* Botones a todo el ancho */
+    .boton-completo {
+        width: 100%;
+    }
+
+    /* ===== VENTANAS: pantalla completa, con el botón de guardar siempre visible ===== */
+    .modal-fullscreen-sm-down .modal-content > form {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    .modal-fullscreen-sm-down .modal-content > form > .modal-body {
+        flex: 1 1 auto;
+        overflow-y: auto;
+    }
+
+    .modal-fullscreen-sm-down .modal-footer {
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+    }
+}

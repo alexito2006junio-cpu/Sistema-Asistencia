@@ -1,5 +1,20 @@
 <?php
-/** @var array $filas */
+/**
+ * Variables que envía EvaluacionController.
+ *
+ * @var array $filas
+ * @var string $mes
+ * @var string $mensaje
+ * @var int $cantidad
+ * @var bool $enCurso
+ * @var bool $antesDelInicio
+ */
+
+$filas          = $filas ?? [];
+$mensaje        = $mensaje ?? "";
+$cantidad       = $cantidad ?? 0;
+$enCurso        = $enCurso ?? false;
+$antesDelInicio = $antesDelInicio ?? false;
 
 $paginaActual = $_GET["pagina"] ?? "evaluacion";
 
@@ -56,7 +71,22 @@ $mes = $mes ?? date("Y-m");
             background-color: #e67800;
             color: white;
         }
+
+        .btn-exportar {
+            background-color: #111;
+            color: #ff8800;
+            border: 2px solid #ff8800;
+            font-weight: bold;
+        }
+
+        .btn-exportar:hover,
+        .btn-exportar:focus {
+            background-color: #ff8800;
+            color: #111;
+            border-color: #ff8800;
+        }
     </style>
+    <link rel="stylesheet" href="public/css/responsive.css">
 </head>
 
 <body>
@@ -147,12 +177,19 @@ $mes = $mes ?? date("Y-m");
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
             <h2 class="titulo mb-0">Notas mensuales</h2>
 
-            <button type="button"
-                class="btn btn-naranja"
-                data-bs-toggle="modal"
-                data-bs-target="#modalJustificar">
-                Justificar día
-            </button>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="index.php?pagina=evaluacion&accion=exportar&mes=<?= urlencode($mes) ?>"
+                    class="btn btn-exportar">
+                    Exportar Excel
+                </a>
+
+                <button type="button"
+                    class="btn btn-naranja"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalJustificar">
+                    Justificar día
+                </button>
+            </div>
         </div>
 
         <!-- Mensajes -->
@@ -207,7 +244,13 @@ $mes = $mes ?? date("Y-m");
             </div>
         </form>
 
-        <?php if ($enCurso): ?>
+        <?php if ($antesDelInicio): ?>
+            <div class="alert alert-secondary">
+                Las notas empiezan a contar desde
+                <strong><?= date("d/m/Y", strtotime(Evaluacion::FECHA_INICIO)) ?></strong>.
+                Este mes no se evalúa.
+            </div>
+        <?php elseif ($enCurso): ?>
             <div class="alert alert-info">
                 Este mes todavía no termina: las notas son
                 <strong>parciales</strong> y cambian cada día.
@@ -236,7 +279,7 @@ $mes = $mes ?? date("Y-m");
             <div class="card-body">
 
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle">
+                    <table class="table table-bordered table-hover align-middle tabla-movil">
                         <thead class="table-dark">
                             <tr>
                                 <th>Practicante</th>
@@ -254,11 +297,11 @@ $mes = $mes ?? date("Y-m");
 
                                 <?php foreach ($filas as $f): ?>
                                     <tr>
-                                        <td>
+                                        <td class="celda-titulo" data-label="">
                                             <?= htmlspecialchars($f["practicante"]) ?>
                                         </td>
 
-                                        <td class="text-center">
+                                        <td data-label="Asistencia" class="text-center">
                                             <div class="fw-bold <?= $color($f["nota_asistencia"]) ?>">
                                                 <?= $nota($f["nota_asistencia"]) ?>
                                             </div>
@@ -269,7 +312,7 @@ $mes = $mes ?? date("Y-m");
                                             <?php endif; ?>
                                         </td>
 
-                                        <td class="text-center">
+                                        <td data-label="Puntualidad" class="text-center">
                                             <div class="fw-bold <?= $color($f["nota_puntualidad"]) ?>">
                                                 <?= $nota($f["nota_puntualidad"]) ?>
                                             </div>
@@ -280,7 +323,7 @@ $mes = $mes ?? date("Y-m");
                                             <?php endif; ?>
                                         </td>
 
-                                        <td class="text-center">
+                                        <td data-label="Horas" class="text-center">
                                             <div class="fw-bold <?= $color($f["nota_horas"]) ?>">
                                                 <?= $nota($f["nota_horas"]) ?>
                                             </div>
@@ -292,11 +335,11 @@ $mes = $mes ?? date("Y-m");
                                             <?php endif; ?>
                                         </td>
 
-                                        <td class="text-center fs-5 fw-bold <?= $color($f["nota_final"]) ?>">
+                                        <td data-label="Nota final" class="text-center fs-5 fw-bold <?= $color($f["nota_final"]) ?>">
                                             <?= $nota($f["nota_final"]) ?>
                                         </td>
 
-                                        <td class="text-center">
+                                        <td data-label="Estado" class="text-center">
                                             <?php if ($f["sin_datos"]): ?>
                                                 <span class="badge text-bg-secondary">Sin datos</span>
                                             <?php elseif ($f["aprobado"]): ?>
@@ -312,7 +355,7 @@ $mes = $mes ?? date("Y-m");
                                             <?php endif; ?>
                                         </td>
 
-                                        <td class="text-center">
+                                        <td data-label="Detalle" class="text-center">
                                             <button type="button"
                                                 class="btn btn-sm btn-outline-dark btn-detalle"
                                                 data-id="<?= (int)$f["id_practicante"] ?>"

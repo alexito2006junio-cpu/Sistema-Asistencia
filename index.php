@@ -30,6 +30,8 @@ if ($pagina === "asistencia") {
         $controller->actualizar();
     } elseif ($accion === "cambiarEstado") {
         $controller->cambiarEstado();
+    } elseif ($accion === "nuevoPeriodo") {
+        $controller->nuevoPeriodo();
     } else {
         $controller->index();
     }
@@ -54,6 +56,8 @@ if ($pagina === "asistencia") {
         $controller->justificar();
     } elseif ($accion === "quitarJustificacion") {
         $controller->quitarJustificacion();
+    } elseif ($accion === "exportar") {
+        $controller->exportar();
     } else {
         $controller->index();
     }

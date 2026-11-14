@@ -1,6 +1,17 @@
 <?php
 
-/** @var mysqli_result|false $historial */
+/**
+ * Variables que envía HistorialController.
+ *
+ * @var mysqli_result|false $historial
+ * @var string $tituloFiltro
+ * @var string $mesCampo
+ * @var string $consultaExportar
+ */
+
+$tituloFiltro     = $tituloFiltro ?? "";
+$mesCampo         = $mesCampo ?? "";
+$consultaExportar = $consultaExportar ?? "";
 ?>
 <?php
 $paginaActual = $_GET["pagina"] ?? "historial";
@@ -69,7 +80,22 @@ $paginaActual = $_GET["pagina"] ?? "historial";
             color: #0d6efd;
             font-weight: bold;
         }
+
+        .btn-exportar {
+            background-color: #111;
+            color: #ff8800;
+            border: 2px solid #ff8800;
+            font-weight: bold;
+        }
+
+        .btn-exportar:hover,
+        .btn-exportar:focus {
+            background-color: #ff8800;
+            color: #111;
+            border-color: #ff8800;
+        }
     </style>
+    <link rel="stylesheet" href="public/css/responsive.css">
 </head>
 
 <body>
@@ -92,7 +118,7 @@ $paginaActual = $_GET["pagina"] ?? "historial";
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="collapse navbar-collapse" id="menu">
+            <div class="collapse navbar-collapse" id="navbarPrincipal">
 
 
                 <ul class="navbar-nav ms-auto">
@@ -134,15 +160,6 @@ $paginaActual = $_GET["pagina"] ?? "historial";
 
     </nav>
 
-    <!------ BOTON EXPORTAR EXCEL ------>
-
-    <div class="d-flex justify-content-end mt-3">
-        <a href="index.php?pagina=historial&accion=exportarExcel"
-            class="btn btn-success btn-sm">
-            <i class="bi bi-file-earmark-excel"></i>
-            Exportar Excel
-        </a>
-    </div>
 
 
 
@@ -153,41 +170,37 @@ $paginaActual = $_GET["pagina"] ?? "historial";
             Historial de asistencia
         </h2>
 
-        <!-- Filtro por fechas -->
+        <!-- Filtros -->
         <div class="tabla-contenedor mb-4">
 
-            <h5 class="fw-bold mb-3">
-                Filtrar por fechas
-            </h5>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <p class="mb-0">
+                    Mostrando:
+                    <strong><?= htmlspecialchars($tituloFiltro) ?></strong>
+                </p>
 
+                <a
+                    href="index.php?pagina=historial&accion=exportarExcel&<?= htmlspecialchars($consultaExportar) ?>"
+                    class="btn btn-exportar">
+                    Exportar Excel
+                </a>
+            </div>
+
+            <!-- Ver un mes -->
             <form method="GET" action="/Sistema_horario/">
-
                 <input type="hidden" name="pagina" value="historial">
 
                 <div class="row g-3 align-items-end">
-
                     <div class="col-md-4">
                         <label class="form-label fw-bold">
-                            Desde
+                            Mes
                         </label>
-
                         <input
-                            type="date"
+                            type="month"
                             class="form-control"
-                            name="desde"
-                            value="<?= htmlspecialchars($_GET["desde"] ?? "") ?>">
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">
-                            Hasta
-                        </label>
-
-                        <input
-                            type="date"
-                            class="form-control"
-                            name="hasta"
-                            value="<?= htmlspecialchars($_GET["hasta"] ?? "") ?>">
+                            name="mes"
+                            value="<?= htmlspecialchars($mesCampo) ?>"
+                            required>
                     </div>
 
                     <div class="col-md-2">
@@ -195,32 +208,26 @@ $paginaActual = $_GET["pagina"] ?? "historial";
                             type="submit"
                             class="btn w-100"
                             style="background-color: #ff8800; color: #000000; font-weight: bold;">
-                            Buscar
+                            Ver mes
                         </button>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <a
                             href="/Sistema_horario/?pagina=historial"
                             class="btn btn-dark w-100">
-                            Limpiar
+                            Mes actual
                         </a>
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">
-                            Buscar por mes
-                        </label>
-
-                        <input
-                            type="month"
-                            class="form-control"
-                            name="mes"
-                            value="<?= htmlspecialchars($_GET["mes"] ?? "") ?>">
+                    <div class="col-md-3">
+                        <a
+                            href="/Sistema_horario/?pagina=historial&todo=1"
+                            class="btn btn-outline-dark w-100">
+                            Ver todo el historial
+                        </a>
                     </div>
-
                 </div>
-
             </form>
 
         </div>
@@ -229,7 +236,7 @@ $paginaActual = $_GET["pagina"] ?? "historial";
 
             <div class="table-responsive">
 
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle tabla-movil">
 
                     <thead class="table-dark">
 
@@ -251,22 +258,22 @@ $paginaActual = $_GET["pagina"] ?? "historial";
 
                                 <tr>
 
-                                    <td>
+                                    <td data-label="Fecha">
                                         <?= htmlspecialchars($registro["fecha"]) ?>
                                     </td>
 
-                                    <td>
+                                    <td data-label="Practicante">
                                         <?= htmlspecialchars($registro["practicante"]) ?>
                                     </td>
 
-                                    <td>
+                                    <td data-label="Hora de llegada">
                                         <?= htmlspecialchars($registro["hora_llegada"] ?? "") ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Hora de salida">
                                         <?= htmlspecialchars($registro["hora_salida"] ?? "") ?>
                                     </td>
 
-                                    <td>
+                                    <td data-label="Estado">
 
                                         <?php
                                         $estado = $registro["estado"];
@@ -299,7 +306,7 @@ $paginaActual = $_GET["pagina"] ?? "historial";
 
                             <tr>
                                 <td colspan="5" class="text-center text-muted py-4">
-                                    No hay registros de asistencia.
+                                    No hay registros de asistencia en este período.
                                 </td>
                             </tr>
 

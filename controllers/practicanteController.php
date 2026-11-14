@@ -12,9 +12,84 @@ class PracticanteController
     }
 
 
+    // Un período se escribe "AÑO-I" o "AÑO-II", por ejemplo 2026-II
+    private function periodoValido($periodo)
+    {
+        if (is_string($periodo) && preg_match('/^\d{4}-(I|II)$/', $periodo)) {
+            return $periodo;
+        }
+
+        return null;
+    }
+
+    // Dirección de la lista de practicantes para un período
+    private function urlPeriodo($periodo, $extra = "")
+    {
+        return "index.php?pagina=practicantes&periodo=" .
+            urlencode($periodo) . $extra;
+    }
+
+    // Dirección de la lista manteniendo el período que se estaba viendo
+    private function urlLista($extra = "")
+    {
+        $vista = $_POST["vista"] ?? "";
+
+        if ($vista === "todos" || $this->periodoValido($vista) !== null) {
+            return $this->urlPeriodo($vista, $extra);
+        }
+
+        return "index.php?pagina=practicantes" . $extra;
+    }
+
+
     public function index()
     {
-        $practicantes = $this->modelo->obtenerTodos();
+        $periodos = $this->modelo->obtenerPeriodos();
+
+        // Qué período se está viendo
+        $pedido   = $_GET["periodo"] ?? "";
+        $verTodos = ($pedido === "todos");
+
+        $periodoActual = null;
+
+        if (!$verTodos) {
+
+            $periodoActual = $this->periodoValido($pedido);
+
+            // Si no se pidió ninguno, se muestra el más reciente
+            if ($periodoActual === null && count($periodos) > 0) {
+                $periodoActual = $periodos[0]["periodo"];
+            }
+        }
+
+        // Un período recién creado y todavía vacío también aparece en la lista
+        $activosPeriodo = 0;
+        $existe = false;
+
+        foreach ($periodos as $p) {
+            if ($p["periodo"] === $periodoActual) {
+                $existe = true;
+                $activosPeriodo = $p["activos"];
+            }
+        }
+
+        if ($periodoActual !== null && !$existe) {
+
+            $periodos[] = [
+                "periodo" => $periodoActual,
+                "total"   => 0,
+                "activos" => 0
+            ];
+
+            usort($periodos, function ($a, $b) {
+                return strcmp($b["periodo"], $a["periodo"]);
+            });
+        }
+
+        // Valor que viaja en los formularios para volver a esta misma vista
+        $vistaActual = $verTodos ? "todos" : (string)$periodoActual;
+
+        $practicantes = $this->modelo->obtenerTodos($periodoActual);
 
         $horariosPorPracticante = [];
 
@@ -33,10 +108,11 @@ class PracticanteController
         }
 
         // Volvemos a consultar para que la tabla se muestre normalmente.
-        $practicantes = $this->modelo->obtenerTodos();
+        $practicantes = $this->modelo->obtenerTodos($periodoActual);
 
         require __DIR__ . "/../views/practicantes/index.php";
     }
+
 
     // =====================================================
     // Lee y valida los datos del formulario (crear y editar)
@@ -127,10 +203,9 @@ class PracticanteController
 
     private function volverConError($mensaje)
     {
-        header(
-            "Location: index.php?pagina=practicantes&mensaje=error&detalle=" .
-                urlencode($mensaje)
-        );
+        header("Location: " . $this->urlLista(
+            "&mensaje=error&detalle=" . urlencode($mensaje)
+        ));
         exit;
     }
 
@@ -148,6 +223,12 @@ class PracticanteController
             $this->volverConError($error);
         }
 
+        $periodo = $this->periodoValido($_POST["periodo"] ?? "");
+
+        if ($periodo === null) {
+            $this->volverConError("Elige el período del practicante.");
+        }
+
         if (count($horarios) === 0) {
             $this->volverConError("Marca al menos un día de trabajo.");
         }
@@ -162,14 +243,16 @@ class PracticanteController
             $datos["dni"],
             $datos["carrera"],
             $datos["semestre"],
-            $horarios
+            $horarios,
+            $periodo
         );
 
         if (!$ok) {
             $this->volverConError("No se pudo guardar el practicante.");
         }
 
-        header("Location: index.php?pagina=practicantes&mensaje=creado");
+        // Se muestra el período donde quedó el practicante nuevo
+        header("Location: " . $this->urlPeriodo($periodo, "&mensaje=creado"));
         exit;
     }
 
@@ -220,7 +303,14 @@ class PracticanteController
             $this->volverConError("No se pudieron guardar los datos del practicante.");
         }
 
-        header("Location: index.php?pagina=practicantes&mensaje=actualizado");
+        // Cambio de período (si se eligió uno válido)
+        $periodo = $this->periodoValido($_POST["periodo"] ?? "");
+
+        if ($periodo !== null) {
+            $this->modelo->actualizarPeriodo($id, $periodo);
+        }
+
+        header("Location: " . $this->urlLista("&mensaje=actualizado"));
         exit;
     }
 
@@ -237,7 +327,49 @@ class PracticanteController
             }
         }
 
-        header("Location: index.php?pagina=practicantes");
+        header("Location: " . $this->urlLista());
+        exit;
+    }
+
+
+    // =====================================================
+    // Crea un período nuevo (por ejemplo 2027-I) y, si se
+    // pide, pasa a él a los practicantes ACTIVOS del período
+    // que se estaba viendo. Los retirados se quedan donde
+    // estaban: no se borra a nadie.
+    // =====================================================
+    public function nuevoPeriodo()
+    {
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            header("Location: index.php?pagina=practicantes");
+            exit;
+        }
+
+        $anio     = (int)($_POST["anio"] ?? 0);
+        $semestre = $_POST["semestre"] ?? "";
+
+        if ($anio < 2024 || $anio > 2100 || !in_array($semestre, ["I", "II"], true)) {
+            $this->volverConError("Escribe un año y un semestre válidos.");
+        }
+
+        $nuevo = $anio . "-" . $semestre;
+        $desde = $this->periodoValido($_POST["desde"] ?? "");
+
+        $pasados = 0;
+
+        if (isset($_POST["continuar"]) && $desde !== null) {
+
+            if ($desde === $nuevo) {
+                $this->volverConError("El período nuevo debe ser distinto al actual.");
+            }
+
+            $pasados = $this->modelo->moverActivos($desde, $nuevo);
+        }
+
+        header("Location: " . $this->urlPeriodo(
+            $nuevo,
+            "&mensaje=periodo_creado&n=" . (int)$pasados
+        ));
         exit;
     }
 }
