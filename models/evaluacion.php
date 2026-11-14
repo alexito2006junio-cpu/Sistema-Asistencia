@@ -1,7 +1,21 @@
 <?php
 
+/**
+ * NOTAS MENSUALES
+ *
+ * Las notas NO se guardan: se calculan cada vez que se abre la pantalla
+ * a partir de las asistencias, así siempre están al día.
+ *
+ * Todas las reglas están en las constantes de abajo. Para cambiar un
+ * peso, un puntaje o la nota mínima, solo se edita aquí.
+ */
 class Evaluacion
 {
+    // Primer día que cuenta para las notas.
+    // Todo lo anterior a esta fecha se ignora (se puede consultar,
+    // pero aparece "Sin datos").
+    const FECHA_INICIO       = "2026-11-01";
+
     // Escala y aprobación
     const NOTA_MAXIMA        = 20;
     const NOTA_APROBATORIA   = 10.5;
@@ -45,6 +59,14 @@ class Evaluacion
         $inicio = $mes . "-01";
         $finMes = date("Y-m-t", strtotime($inicio));
         $hoy    = date("Y-m-d");
+
+        // Los meses anteriores al inicio del sistema de notas no cuentan
+        if ($finMes < self::FECHA_INICIO) {
+            return $this->filasSinDatos($this->obtenerPracticantesActivos());
+        }
+
+        // Si el sistema empieza a mitad de este mes, se parte desde esa fecha
+        $inicio = max($inicio, self::FECHA_INICIO);
 
         // Un mes futuro todavía no tiene nada que evaluar.
         // En el mes actual solo se evalúa hasta hoy.
@@ -128,8 +150,10 @@ class Evaluacion
 
                 $tieneSalida = !empty($registro["hora_salida"]);
 
-                // Hoy y todavía en la empresa: sus horas se cuentan mañana
+                // Hoy y todavía en la empresa: ya cuenta su asistencia y
+                // puntualidad, pero sus horas se suman cuando marque la salida
                 if ($esHoy && !$tieneSalida) {
+                    $diasEvaluados++;
                     continue;
                 }
 
@@ -286,7 +310,7 @@ class Evaluacion
             "SELECT id_practicante, nombres, apellidos
              FROM Practicantes
              WHERE activo = 1
-             ORDER BY apellidos, nombres "
+             ORDER BY apellidos, nombres"
         );
 
         $lista = [];
