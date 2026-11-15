@@ -22,7 +22,7 @@ $mes = $mes ?? date("Y-m");
 ?>
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -31,62 +31,15 @@ $mes = $mes ?? date("Y-m");
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
+    <link rel="stylesheet" href="views/evaluacion/css/style.css">
 
-    <style>
-        body {
-            background-color: #f5f5f5;
-        }
-
-        .navbar {
-            background-color: #111;
-        }
-
-        .navbar-brand {
-            color: #ff8800 !important;
-            font-weight: bold;
-        }
-
-        .navbar .nav-link {
-            color: #fff !important;
-            transition: color 0.2s;
-        }
-
-        .navbar .nav-link.active,
-        .navbar .nav-link:hover {
-            color: #ff8800 !important;
-        }
-
-        .titulo {
-            font-weight: bold;
-            color: #222;
-        }
-
-        .btn-naranja {
-            background-color: #ff8800;
-            color: white;
-            border: none;
-        }
-
-        .btn-naranja:hover {
-            background-color: #e67800;
-            color: white;
-        }
-
-        .btn-exportar {
-            background-color: #111;
-            color: #ff8800;
-            border: 2px solid #ff8800;
-            font-weight: bold;
-        }
-
-        .btn-exportar:hover,
-        .btn-exportar:focus {
-            background-color: #ff8800;
-            color: #111;
-            border-color: #ff8800;
-        }
-    </style>
-    <link rel="stylesheet" href="public/css/responsive.css">
+<script>
+    try {
+        document.documentElement.dataset.theme = localStorage.getItem('sistema-horario-theme') || 'dark';
+    } catch (error) {
+        document.documentElement.dataset.theme = 'dark';
+    }
+</script>
 </head>
 
 <body>
@@ -141,6 +94,10 @@ $mes = $mes ?? date("Y-m");
                     </li>
 
                 </ul>
+                <button type="button" class="theme-toggle ms-lg-3" data-theme-toggle role="switch" aria-checked="true" aria-label="Tema oscuro">
+                    <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
+                    <span class="theme-toggle-label">Modo oscuro</span>
+                </button>
 
             </div>
         </div>
@@ -631,6 +588,33 @@ $mes = $mes ?? date("Y-m");
         });
     </script>
 
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const toggle = document.querySelector('[data-theme-toggle]');
+            if (!toggle) return;
+
+            function updateToggle() {
+                const isDark = root.dataset.theme === 'dark';
+                toggle.querySelector('.theme-toggle-label').textContent = isDark ? 'Modo oscuro' : 'Modo claro';
+                toggle.setAttribute('aria-label', isDark ? 'Tema oscuro' : 'Tema claro');
+                toggle.setAttribute('aria-checked', String(isDark));
+            }
+
+            toggle.addEventListener('click', function () {
+                const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+                root.dataset.theme = nextTheme;
+                try {
+                    localStorage.setItem('sistema-horario-theme', nextTheme);
+                } catch (error) {
+                    // El tema seguirá funcionando aunque el navegador no permita guardar preferencias.
+                }
+                updateToggle();
+            });
+
+            updateToggle();
+        }());
+    </script>
 </body>
 
 </html>

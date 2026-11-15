@@ -30,6 +30,8 @@ if ($pagina === "asistencia") {
         $controller->actualizar();
     } elseif ($accion === "cambiarEstado") {
         $controller->cambiarEstado();
+    } elseif ($accion === "moverActivosPeriodo") {
+        $controller->moverActivosPeriodo();
     } elseif ($accion === "nuevoPeriodo") {
         $controller->nuevoPeriodo();
     } else {

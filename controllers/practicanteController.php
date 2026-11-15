@@ -332,12 +332,36 @@ class PracticanteController
     }
 
 
-    // =====================================================
-    // Crea un período nuevo (por ejemplo 2027-I) y, si se
-    // pide, pasa a él a los practicantes ACTIVOS del período
-    // que se estaba viendo. Los retirados se quedan donde
-    // estaban: no se borra a nadie.
-    // =====================================================
+    // Mueve en bloque a otro período a los practicantes activos de la vista.
+    public function moverActivosPeriodo()
+    {
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            header("Location: index.php?pagina=practicantes");
+            exit;
+        }
+
+        $desde = $this->periodoValido($_POST["desde"] ?? "");
+        $hacia = $this->periodoValido($_POST["hacia"] ?? "");
+
+        if ($desde === null || $hacia === null) {
+            $this->volverConError("Elige períodos válidos para mover a los practicantes.");
+        }
+
+        if ($desde === $hacia) {
+            $this->volverConError("El período de destino debe ser distinto al actual.");
+        }
+
+        $pasados = $this->modelo->moverActivos($desde, $hacia);
+
+        header("Location: " . $this->urlPeriodo(
+            $hacia,
+            "&mensaje=activos_movidos&n=" . (int)$pasados .
+                "&desde=" . urlencode($desde) . "&hacia=" . urlencode($hacia)
+        ));
+        exit;
+    }
+
+    // Crea un período y traslada activos solo si se marcó la opción.
     public function nuevoPeriodo()
     {
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {

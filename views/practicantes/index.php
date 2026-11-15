@@ -46,7 +46,7 @@ $paginaActual = $_GET["pagina"] ?? "practicantes";
 
 <!DOCTYPE html>
 
-<html lang="es">
+<html lang="es" data-theme="dark">
 
 <head>
 
@@ -60,129 +60,15 @@ $paginaActual = $_GET["pagina"] ?? "practicantes";
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
+    <link rel="stylesheet" href="views/practicantes/css/style.css">
 
-    <style>
-        .navbar {
-            background-color: #111;
-        }
-
-        .navbar-brand {
-            color: #ff8800 !important;
-            font-weight: bold;
-        }
-
-        .navbar .nav-link {
-            color: #fff !important;
-            transition: color 0.2s;
-        }
-
-        .navbar .nav-link.active,
-        .navbar .nav-link:hover {
-            color: #ff8800 !important;
-        }
-
-        /* ----- Botones con los colores de la empresa ----- */
-        .btn-naranja {
-            background-color: #ff8800;
-            color: #111;
-            border: 2px solid #ff8800;
-            font-weight: bold;
-        }
-        .btn-naranja:hover,
-        .btn-naranja:focus {
-            background-color: #e67a00;
-            border-color: #e67a00;
-            color: #111;
-        }
-        .btn-negro {
-            background-color: #111;
-            color: #ff8800;
-            border: 2px solid #ff8800;
-            font-weight: bold;
-        }
-        .btn-negro:hover,
-        .btn-negro:focus {
-            background-color: #ff8800;
-            color: #111;
-            border-color: #ff8800;
-        }
-        .btn-gris {
-            background-color: transparent;
-            color: #555;
-            border: 2px solid #bbb;
-            font-weight: bold;
-        }
-        .btn-gris:hover,
-        .btn-gris:focus {
-            background-color: #111;
-            color: #fff;
-            border-color: #111;
-        }
-        .btn-reactivar {
-            background-color: transparent;
-            color: #ff8800;
-            border: 2px solid #ff8800;
-            font-weight: bold;
-        }
-        .btn-reactivar:hover,
-        .btn-reactivar:focus {
-            background-color: #ff8800;
-            color: #111;
-        }
-
-        /* ----- Períodos ----- */
-        .chips-periodo {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        .chip-periodo {
-            border: 1px solid #ccc;
-            border-radius: 999px;
-            padding: 0.35rem 0.95rem;
-            color: #111;
-            background: #fff;
-            text-decoration: none;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-        .chip-periodo small {
-            opacity: 0.65;
-            margin-left: 0.35rem;
-        }
-        .chip-periodo:hover {
-            border-color: #ff8800;
-            color: #111;
-        }
-        .chip-periodo.activo {
-            background: #ff8800;
-            border-color: #ff8800;
-            font-weight: bold;
-        }
-        .chip-mas {
-            border: 2px dashed #ff8800;
-            color: #ff8800;
-            background: transparent;
-            font-weight: bold;
-            padding: 0.3rem 1.1rem;
-        }
-
-        /* ----- Estado ----- */
-        .badge-activo {
-            background-color: rgba(255, 136, 0, 0.18);
-            color: #b35c00;
-            border: 1px solid #ff8800;
-        }
-        .badge-retirado {
-            background-color: #e9ecef;
-            color: #6c757d;
-        }
-        tr.fila-retirada td:not([data-label=""]) {
-            opacity: 0.55;
-        }
-    </style>
-    <link rel="stylesheet" href="public/css/responsive.css">
+<script>
+    try {
+        document.documentElement.dataset.theme = localStorage.getItem('sistema-horario-theme') || 'dark';
+    } catch (error) {
+        document.documentElement.dataset.theme = 'dark';
+    }
+</script>
 </head>
 
 <body>
@@ -236,6 +122,10 @@ $paginaActual = $_GET["pagina"] ?? "practicantes";
                     </li>
 
                 </ul>
+                <button type="button" class="theme-toggle ms-lg-3" data-theme-toggle role="switch" aria-checked="true" aria-label="Tema oscuro">
+                    <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
+                    <span class="theme-toggle-label">Modo oscuro</span>
+                </button>
 
 
             </div>
@@ -294,9 +184,14 @@ $paginaActual = $_GET["pagina"] ?? "practicantes";
         </div>
 
         <p class="text-muted small mb-3">
-            Pulsa «+» para crear un año o semestre nuevo y pasar ahí a quienes continúan.
-            Los retirados se quedan en su período, sin borrarse.
+            Pulsa «+» para crear un período. El traslado de activos es opcional; usa «Devolver activos» para moverlos en bloque a otro período.
         </p>
+        <?php if ($periodoActual !== null && $activosPeriodo > 0): ?>
+            <button type="button" class="btn btn-negro btn-sm mb-3"
+                data-bs-toggle="modal" data-bs-target="#modalMoverActivos">
+                Devolver activos a otro período
+            </button>
+        <?php endif; ?>
 
         <div class="card shadow-sm border-0">
 
@@ -664,8 +559,7 @@ $paginaActual = $_GET["pagina"] ?? "practicantes";
                                     type="checkbox"
                                     name="continuar"
                                     value="1"
-                                    id="periodo_continuar"
-                                    checked>
+                                    id="periodo_continuar">
                                 <label class="form-check-label" for="periodo_continuar">
                                     Pasar al nuevo período a los
                                     <strong><?= (int)$activosPeriodo ?> practicantes activos</strong>
@@ -697,6 +591,48 @@ $paginaActual = $_GET["pagina"] ?? "practicantes";
         </div>
     </div>
 
+    <!-- Modal para mover en bloque los practicantes activos -->
+    <?php if ($periodoActual !== null && $activosPeriodo > 0): ?>
+        <div class="modal fade" id="modalMoverActivos" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form method="POST" id="formMoverActivosPeriodo"
+                        action="index.php?pagina=practicantes&accion=moverActivosPeriodo"
+                        data-desde="<?= htmlspecialchars($periodoActual, ENT_QUOTES) ?>"
+                        data-cantidad="<?= (int)$activosPeriodo ?>">
+                        <input type="hidden" name="desde" value="<?= htmlspecialchars($periodoActual) ?>">
+                        <input type="hidden" name="vista" value="<?= htmlspecialchars($vistaActual) ?>">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Devolver activos en bloque</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Se moverán los <strong><?= (int)$activosPeriodo ?> practicantes activos</strong> de
+                                <strong><?= htmlspecialchars($periodoActual) ?></strong> al período que elijas.
+                                Seguirán activos y los retirados no se moverán.</p>
+                            <label for="periodo_destino_activos" class="form-label">Período destino</label>
+                            <input type="text" class="form-control" id="periodo_destino_activos"
+                                name="hacia" list="periodosDestinoActivos" pattern="\d{4}-(I|II)"
+                                placeholder="Ejemplo: 2026-II" required>
+                            <datalist id="periodosDestinoActivos">
+                                <?php foreach ($periodos as $p): ?>
+                                    <?php if ($p['periodo'] !== $periodoActual): ?>
+                                        <option value="<?= htmlspecialchars($p['periodo']) ?>"></option>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </datalist>
+                            <div class="form-text">Puedes elegir un período existente o escribir otro con formato AAAA-I o AAAA-II.</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-gris" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-naranja">Mover activos</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
     <!-- Modal Editar Practicante -->
     <div class="modal fade" id="modalEditarPracticante" tabindex="-1">
         <div class="modal-dialog modal-fullscreen-sm-down">
@@ -1039,6 +975,18 @@ $paginaActual = $_GET["pagina"] ?? "practicantes";
             });
         <?php endif; ?>
 
+        <?php if ($mensaje === "activos_movidos"): ?>
+            Swal.fire({
+                icon: "success",
+                title: "Período actualizado",
+                text: <?= json_encode(
+                    "Se movieron " . $pasados . " practicantes activos de " .
+                    ($_GET["desde"] ?? "") . " a " . ($_GET["hacia"] ?? "") . ".",
+                    JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+                ) ?>,
+                confirmButtonColor: "#ff8800"
+            });
+        <?php endif; ?>
         <?php if ($mensaje === "creado"): ?>
             Swal.fire({
                 icon: "success",
@@ -1071,6 +1019,62 @@ $paginaActual = $_GET["pagina"] ?? "practicantes";
     </script>
 
 
+    <script>
+        const formMoverActivos = document.getElementById("formMoverActivosPeriodo");
+        if (formMoverActivos) {
+            formMoverActivos.addEventListener("submit", function (event) {
+                event.preventDefault();
+                const destino = document.getElementById("periodo_destino_activos").value.trim();
+                const desde = this.dataset.desde;
+                const cantidad = Number(this.dataset.cantidad);
+
+                if (destino === desde) {
+                    Swal.fire({ icon: "warning", title: "Elige otro período", text: "El período destino debe ser distinto al actual." });
+                    return;
+                }
+
+                Swal.fire({
+                    icon: "question",
+                    title: "¿Mover todos los activos?",
+                    text: `Se moverán ${cantidad} practicantes activos de ${desde} a ${destino}. Seguirán activos.`,
+                    showCancelButton: true,
+                    confirmButtonText: "Sí, moverlos",
+                    cancelButtonText: "Cancelar",
+                    confirmButtonColor: "#ff8800"
+                }).then((resultado) => {
+                    if (resultado.isConfirmed) this.submit();
+                });
+            });
+        }
+    </script>
+
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const toggle = document.querySelector('[data-theme-toggle]');
+            if (!toggle) return;
+
+            function updateToggle() {
+                const isDark = root.dataset.theme === 'dark';
+                toggle.querySelector('.theme-toggle-label').textContent = isDark ? 'Modo oscuro' : 'Modo claro';
+                toggle.setAttribute('aria-label', isDark ? 'Tema oscuro' : 'Tema claro');
+                toggle.setAttribute('aria-checked', String(isDark));
+            }
+
+            toggle.addEventListener('click', function () {
+                const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+                root.dataset.theme = nextTheme;
+                try {
+                    localStorage.setItem('sistema-horario-theme', nextTheme);
+                } catch (error) {
+                    // El tema seguirá funcionando aunque el navegador no permita guardar preferencias.
+                }
+                updateToggle();
+            });
+
+            updateToggle();
+        }());
+    </script>
 </body>
 
 </html>

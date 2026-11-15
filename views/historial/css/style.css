@@ -1,0 +1,557 @@
+
+body {
+    background-color: #292c30;
+    color: #f1f1f1;
+}
+
+        .navbar {
+            background-color: #111;
+        }
+
+        .navbar-brand {
+            color: #ff8800 !important;
+            font-weight: bold;
+        }
+
+        .navbar .nav-link {
+            color: #fff !important;
+            transition: color 0.2s;
+        }
+
+        .navbar .nav-link.active,
+        .navbar .nav-link:hover {
+            color: #ff8800 !important;
+        }
+
+        .titulo {
+            color: #ff8800;
+            font-weight: bold;
+        }
+
+        .tabla-contenedor {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .estado-puntual {
+            color: #198754;
+            font-weight: bold;
+        }
+
+        .estado-tardanza {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .estado-adelantado {
+            color: #0d6efd;
+            font-weight: bold;
+        }
+
+        .btn-exportar {
+            background-color: #111;
+            color: #ff8800;
+            border: 2px solid #ff8800;
+            font-weight: bold;
+        }
+
+        .btn-exportar:hover,
+        .btn-exportar:focus {
+            background-color: #ff8800;
+            color: #111;
+            border-color: #ff8800;
+        }
+/* Fondo oscuro moderado y superficies con contraste */
+body {
+    background-color: #292c30;
+    color: #f1f1f1;
+}
+.card,
+.tabla-contenedor {
+    background-color: #373b40;
+    color: #f1f1f1;
+}
+.table {
+    --bs-table-bg: #373b40;
+    --bs-table-color: #f1f1f1;
+    --bs-table-border-color: #555b62;
+}
+.form-control,
+.form-select {
+    background-color: #42474d;
+    color: #f1f1f1;
+    border-color: #626970;
+}
+.form-control::placeholder { color: #c0c4c8; }
+.form-control:focus,
+.form-select:focus {
+    background-color: #42474d;
+    color: #f1f1f1;
+}
+.text-muted { color: #c0c4c8 !important; }
+/* =========================================================
+   ADAPTACIÓN PARA CELULARES Y TABLETS
+   Se carga en todas las pantallas del sistema.
+   Colores de la empresa: negro #111 y naranja #ff8800.
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   TABLETS Y CELULARES (menos de 992px)
+   --------------------------------------------------------- */
+@media (max-width: 991.98px) {
+
+    /* Menú desplegable: botones fáciles de tocar */
+    .navbar .nav-link {
+        padding: 0.75rem 0;
+    }
+
+    .navbar-collapse {
+        border-top: 1px solid #333;
+        margin-top: 0.5rem;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   CELULARES Y TABLETS PEQUEÑAS (menos de 768px)
+   --------------------------------------------------------- */
+@media (max-width: 767.98px) {
+
+    /* Nombre de la empresa más corto para que quepa junto al botón */
+    .navbar-brand {
+        font-size: 1rem;
+        max-width: 75%;
+        white-space: normal;
+        line-height: 1.2;
+    }
+
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    h2,
+    .titulo {
+        font-size: 1.4rem;
+    }
+
+    .tabla-contenedor {
+        padding: 12px !important;
+    }
+
+    .card-body {
+        padding: 0.9rem;
+    }
+
+    /* Campos de texto a 16px: evita el zoom automático en iPhone */
+    .form-control,
+    .form-select {
+        font-size: 16px;
+    }
+
+    /* Lista de períodos: una sola fila que se desplaza hacia el lado */
+    .chips-periodo {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        width: 100%;
+        padding-bottom: 0.35rem;
+    }
+
+    .chips-periodo .chip-periodo {
+        flex: 0 0 auto;
+    }
+
+    /* Botones y enlaces de acción más cómodos al tocar */
+    .btn {
+        min-height: 40px;
+    }
+
+
+    /* ===== TABLAS: cada fila se convierte en una tarjeta ===== */
+    table.tabla-movil thead {
+        display: none;
+    }
+
+    table.tabla-movil,
+    table.tabla-movil > tbody,
+    table.tabla-movil > tbody > tr {
+        display: block;
+        width: 100%;
+    }
+
+    table.tabla-movil > tbody > tr {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-left: 4px solid #ff8800;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        padding: 0.25rem 0.9rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    table.tabla-movil > tbody > tr > td {
+        display: block;
+        position: relative;
+        padding: 0.55rem 0 0.55rem 42%;
+        min-height: 2.4rem;
+        border: 0;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: left !important;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    table.tabla-movil > tbody > tr > td:last-child {
+        border-bottom: 0;
+    }
+
+    /* Etiqueta de cada dato (sale del atributo data-label) */
+    table.tabla-movil > tbody > tr > td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        top: 0.55rem;
+        width: 38%;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    /* Celdas sin etiqueta (por ejemplo, los botones de acción) */
+    table.tabla-movil > tbody > tr > td[data-label=""] {
+        padding-left: 0;
+    }
+
+    table.tabla-movil > tbody > tr > td[data-label=""]::before {
+        display: none;
+    }
+
+    /* Celda de título (por ejemplo, el nombre del practicante) */
+    table.tabla-movil > tbody > tr > td.celda-titulo {
+        padding-left: 0;
+        font-weight: bold;
+        font-size: 1.05rem;
+    }
+
+    table.tabla-movil > tbody > tr > td.celda-titulo::before {
+        display: none;
+    }
+
+    /* Fila de "No hay registros" */
+    table.tabla-movil > tbody > tr > td[colspan] {
+        padding-left: 0;
+        text-align: center !important;
+    }
+
+    table.tabla-movil > tbody > tr > td[colspan]::before {
+        display: none;
+    }
+
+    /* Botones de acción: uno junto a otro, o en columna si no caben */
+    table.tabla-movil .acciones-fila {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    table.tabla-movil .acciones-fila form {
+        display: block !important;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   CELULARES (menos de 576px)
+   --------------------------------------------------------- */
+@media (max-width: 575.98px) {
+
+    /* Tarjetas de la pantalla de asistencia más compactas */
+    .btn-practicante {
+        padding: 0.75rem !important;
+    }
+
+    .btn-practicante .fs-1 {
+        font-size: 1.8rem !important;
+        margin-bottom: 0.15rem !important;
+    }
+
+    .btn-practicante .fs-5 {
+        font-size: 1rem !important;
+    }
+
+    .btn-practicante .btn-salida {
+        margin-top: 0.75rem !important;
+        min-height: 46px;
+    }
+
+    /* El reloj debajo del título, no al lado */
+    #reloj {
+        font-size: 1.6rem;
+    }
+
+    /* Botones a todo el ancho */
+    .boton-completo {
+        width: 100%;
+    }
+
+    /* ===== VENTANAS: pantalla completa, con el botón de guardar siempre visible ===== */
+    .modal-fullscreen-sm-down .modal-content > form {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    .modal-fullscreen-sm-down .modal-content > form > .modal-body {
+        flex: 1 1 auto;
+        overflow-y: auto;
+    }
+
+    .modal-fullscreen-sm-down .modal-footer {
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+    }
+}
+
+
+/* Tema claro y oscuro compartido */
+html[data-theme="light"] {
+    color-scheme: light;
+    --app-page: #f2f4f7;
+    --app-surface: #ffffff;
+    --app-raised: #f8f9fb;
+    --app-text: #252a31;
+    --app-muted: #59636e;
+    --app-border: #d5dbe1;
+}
+html[data-theme="dark"] {
+    color-scheme: dark;
+    --app-page: #25282c;
+    --app-surface: #33373c;
+    --app-raised: #3d4248;
+    --app-text: #f2f4f6;
+    --app-muted: #c4cbd2;
+    --app-border: #59616a;
+}
+html[data-theme] body,
+html[data-theme] body.bg-light {
+    background-color: var(--app-page) !important;
+    color: var(--app-text);
+    transition: background-color .2s ease, color .2s ease;
+}
+html[data-theme] .card,
+html[data-theme] .tabla-contenedor,
+html[data-theme] .modal-content,
+html[data-theme] .dropdown-menu,
+html[data-theme] .bg-white {
+    background-color: var(--app-surface) !important;
+    color: var(--app-text);
+    border-color: var(--app-border);
+}
+html[data-theme] .card-header,
+html[data-theme] .card-footer,
+html[data-theme] .modal-header,
+html[data-theme] .modal-footer {
+    background-color: var(--app-raised);
+    color: var(--app-text);
+    border-color: var(--app-border);
+}
+html[data-theme] h1,
+html[data-theme] h2,
+html[data-theme] h3,
+html[data-theme] h4,
+html[data-theme] h5,
+html[data-theme] h6,
+html[data-theme] .text-dark,
+html[data-theme] .text-body,
+html[data-theme] .text-secondary,
+html[data-theme] .text-muted,
+html[data-theme] .form-label,
+html[data-theme] .form-text,
+html[data-theme] label {
+    color: var(--app-text) !important;
+}
+html[data-theme] .text-muted,
+html[data-theme] .text-secondary,
+html[data-theme] .form-text {
+    color: var(--app-muted) !important;
+}
+html[data-theme] .btn .text-dark,
+html[data-theme] .btn .text-body {
+    color: inherit !important;
+}
+html[data-theme] .table {
+    --bs-table-bg: var(--app-surface);
+    --bs-table-color: var(--app-text);
+    --bs-table-border-color: var(--app-border);
+    --bs-table-striped-bg: var(--app-raised);
+    --bs-table-striped-color: var(--app-text);
+    --bs-table-hover-bg: var(--app-raised);
+    --bs-table-hover-color: var(--app-text);
+}
+html[data-theme] .table th,
+html[data-theme] .table td {
+    color: var(--app-text);
+    border-color: var(--app-border);
+}
+html[data-theme] .table-light,
+html[data-theme] .table-light th,
+html[data-theme] .table-light td {
+    --bs-table-bg: var(--app-raised);
+    --bs-table-color: var(--app-text);
+    background-color: var(--app-raised);
+    color: var(--app-text);
+}
+html[data-theme] .form-control,
+html[data-theme] .form-select,
+html[data-theme] .form-check-input {
+    background-color: var(--app-raised);
+    color: var(--app-text);
+    border-color: var(--app-border);
+}
+html[data-theme] .form-control::placeholder {
+    color: var(--app-muted);
+    opacity: 1;
+}
+html[data-theme] .form-control:focus,
+html[data-theme] .form-select:focus {
+    background-color: var(--app-raised);
+    color: var(--app-text);
+}
+html[data-theme="dark"] .btn-outline-dark {
+    color: #f2f4f6;
+    border-color: #adb5bd;
+}
+html[data-theme="dark"] .chip-periodo:not(.activo) {
+    color: #f2f4f6;
+    background-color: var(--app-raised);
+    border-color: var(--app-border);
+}
+html[data-theme="dark"] .chip-periodo:not(.activo):hover {
+    color: #fff;
+    border-color: #ff8800;
+}
+html[data-theme="dark"] .btn-practicante,
+html[data-theme="dark"] .btn-practicante:hover,
+html[data-theme="dark"] .btn-practicante:focus {
+    background-color: var(--app-raised);
+    color: #f2f4f6;
+    border-color: #ff8800;
+}
+html[data-theme="dark"] .btn-practicante .fs-5 {
+    color: #fff;
+}
+html[data-theme="dark"] .btn-practicante .small {
+    color: #d4d9de !important;
+}
+html[data-theme="light"] .btn-practicante,
+html[data-theme="light"] .btn-practicante:hover,
+html[data-theme="light"] .btn-practicante:focus {
+    background-color: #fff;
+    color: #252a31;
+}
+.theme-toggle {
+    white-space: nowrap;
+}
+@media (max-width: 991.98px) {
+    .theme-toggle {
+        margin-top: .5rem;
+        margin-bottom: .5rem;
+    }
+}
+/* Estados y controles que también necesitan contraste en tema oscuro */
+html[data-theme="dark"] .titulo {
+    color: #ffb54a !important;
+}
+html[data-theme="dark"] .estado-puntual,
+html[data-theme="dark"] .table td.estado-puntual {
+    color: #63dda0 !important;
+}
+html[data-theme="dark"] .estado-tardanza,
+html[data-theme="dark"] .table td.estado-tardanza {
+    color: #ff7b86 !important;
+}
+html[data-theme="dark"] .estado-adelantado,
+html[data-theme="dark"] .table td.estado-adelantado {
+    color: #82bdff !important;
+}
+html[data-theme="dark"] .badge-activo {
+    background-color: rgba(255, 181, 74, .18);
+    color: #ffd08a;
+}
+html[data-theme="dark"] .badge-retirado {
+    background-color: #4b5158;
+    color: #e0e4e8;
+}
+html[data-theme="dark"] .btn-gris {
+    color: #e9edf1;
+    border-color: #aab2ba;
+}
+html[data-theme="dark"] tr.fila-retirada td:not([data-label=""]) {
+    opacity: .78;
+}
+html[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+html[data-theme="light"] .titulo {
+    color: #a64e00 !important;
+}
+html[data-theme="light"] .btn-practicante .fs-5 {
+    color: #252a31 !important;
+}
+html[data-theme="light"] .btn-practicante .small {
+    color: #59636e !important;
+}
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .35rem .5rem;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    font-size: .9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.theme-toggle:focus-visible {
+    outline: 2px solid #ff8800;
+    outline-offset: 3px;
+    border-radius: .25rem;
+}
+.theme-toggle-track {
+    display: inline-flex;
+    align-items: center;
+    width: 2.55rem;
+    height: 1.4rem;
+    padding: .15rem;
+    border: 1px solid #aab2ba;
+    border-radius: 999px;
+    background: #626970;
+    transition: background-color .2s ease;
+}
+.theme-toggle-thumb {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform .2s ease, background-color .2s ease;
+}
+html[data-theme="dark"] .theme-toggle-track {
+    background: #ff8800;
+    border-color: #ff8800;
+}
+html[data-theme="dark"] .theme-toggle-thumb {
+    transform: translateX(1.12rem);
+    background: #222;
+}
