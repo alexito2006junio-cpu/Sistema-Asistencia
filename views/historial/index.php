@@ -29,7 +29,7 @@ $paginaActual = $_GET["pagina"] ?? "historial";
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
-    <link rel="stylesheet" href="views/historial/css/style.css">
+    <link rel="stylesheet" href="views/historial/css/style.css?v=20261114-2">
 
 <script>
     try {

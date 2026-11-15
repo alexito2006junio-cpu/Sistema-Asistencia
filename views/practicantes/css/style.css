@@ -609,3 +609,58 @@ html[data-theme="dark"] .theme-toggle-thumb {
     transform: translateX(1.12rem);
     background: #222;
 }
+
+/* Contraste de iconos y avisos en modo oscuro */
+html[data-theme="dark"] .swal2-popup {
+    background: #33373c !important;
+    color: #f2f4f6 !important;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, .4);
+}
+html[data-theme="dark"] .swal2-title,
+html[data-theme="dark"] .swal2-html-container,
+html[data-theme="dark"] .swal2-content,
+html[data-theme="dark"] .swal2-footer {
+    color: #f2f4f6 !important;
+}
+html[data-theme="dark"] .swal2-footer {
+    border-top-color: #59616a;
+}
+html[data-theme="dark"] .swal2-input,
+html[data-theme="dark"] .swal2-textarea,
+html[data-theme="dark"] .swal2-select {
+    background: #3d4248 !important;
+    color: #f2f4f6 !important;
+    border-color: #69717a !important;
+}
+html[data-theme="dark"] .swal2-validation-message {
+    background: #454b52 !important;
+    color: #f2f4f6 !important;
+}
+html[data-theme="dark"] .swal2-close {
+    color: #e1e5e9 !important;
+}
+html[data-theme="dark"] .alert-success {
+    background: #173c2a;
+    border-color: #286c45;
+    color: #a8e6bf;
+}
+html[data-theme="dark"] .alert-warning {
+    background: #493b1b;
+    border-color: #806a34;
+    color: #ffe0a0;
+}
+html[data-theme="dark"] .alert-danger {
+    background: #49272a;
+    border-color: #854149;
+    color: #ffb7bd;
+}
+html[data-theme="dark"] .alert-info {
+    background: #193a4a;
+    border-color: #346277;
+    color: #b4e7f8;
+}
+html[data-theme="dark"] .alert-secondary {
+    background: #41464b;
+    border-color: #626970;
+    color: #e1e5e9;
+}

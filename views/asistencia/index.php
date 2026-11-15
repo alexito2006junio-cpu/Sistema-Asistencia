@@ -20,7 +20,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
-    <link rel="stylesheet" href="views/asistencia/css/style.css">
+    <link rel="stylesheet" href="views/asistencia/css/style.css?v=20261114-2">
 
 <script>
     try {
@@ -180,8 +180,11 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                                     data-id="<?= $practicante["id_practicante"] ?>"
                                     data-nombre="<?= htmlspecialchars($practicante["nombres"] . " " . $practicante["apellidos"]) ?>">
 
-                                    <div class="fs-1 mb-2">
-                                        👤
+                                    <div class="mb-2" aria-hidden="true">
+                                        <svg class="icono-practicante" viewBox="0 0 64 64" focusable="false">
+                                            <circle cx="32" cy="19" r="13" fill="currentColor" />
+                                            <path d="M7 59c1-15 11-24 25-24s24 9 25 24H7z" fill="currentColor" />
+                                        </svg>
                                     </div>
 
                                     <div class="fs-5 fw-bold">
@@ -290,8 +293,11 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                                     data-id="<?= $practicante["id_practicante"] ?>"
                                     data-nombre="<?= htmlspecialchars($practicante["nombres"] . " " . $practicante["apellidos"]) ?>">
 
-                                    <div class="fs-1 mb-2">
-                                        👤
+                                    <div class="mb-2" aria-hidden="true">
+                                        <svg class="icono-practicante" viewBox="0 0 64 64" focusable="false">
+                                            <circle cx="32" cy="19" r="13" fill="currentColor" />
+                                            <path d="M7 59c1-15 11-24 25-24s24 9 25 24H7z" fill="currentColor" />
+                                        </svg>
                                     </div>
 
                                     <div class="fs-5 fw-bold">
@@ -400,8 +406,11 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                                     data-id="<?= $practicante["id_practicante"] ?>"
                                     data-nombre="<?= htmlspecialchars($practicante["nombres"] . " " . $practicante["apellidos"]) ?>">
 
-                                    <div class="fs-1 mb-2">
-                                        👤
+                                    <div class="mb-2" aria-hidden="true">
+                                        <svg class="icono-practicante" viewBox="0 0 64 64" focusable="false">
+                                            <circle cx="32" cy="19" r="13" fill="currentColor" />
+                                            <path d="M7 59c1-15 11-24 25-24s24 9 25 24H7z" fill="currentColor" />
+                                        </svg>
                                     </div>
 
                                     <div class="fs-5 fw-bold">
