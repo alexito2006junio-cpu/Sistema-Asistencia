@@ -619,3 +619,97 @@ html[data-theme="dark"] .alert-secondary {
     margin: 0 auto;
     color: #ff8800;
 }
+
+/* Marca de la empresa en la barra de navegación */
+.navbar .navbar-brand {
+    font-family: "Arial Black", Arial, sans-serif;
+    font-weight: 900 !important;
+    font-size: 30px;
+    letter-spacing: .035em;
+}
+
+
+.titulo-vista {
+    font-size: 28px !important;
+}
+
+/* Color uniforme de navegación y tarjetas de tabla en modo oscuro */
+.navbar.navbar-dark {
+    background-color: #111 !important;
+}
+html[data-theme="dark"] table.tabla-movil > tbody > tr {
+    background: var(--app-surface) !important;
+    background-color: var(--app-surface) !important;
+    color: var(--app-text);
+    border-color: var(--app-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .22);
+}
+html[data-theme="dark"] table.tabla-movil > tbody > tr > td {
+    background: transparent !important;
+    color: var(--app-text) !important;
+    border-color: var(--app-border) !important;
+}
+html[data-theme="dark"] table.tabla-movil > tbody > tr > td::before {
+    color: var(--app-muted) !important;
+}
+
+/* Botón destacado para registrar la salida, sin resplandor */
+.btn-salida {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .55rem;
+    min-height: 46px;
+    border: 1px solid #e56b00;
+    border-radius: .65rem;
+    background: linear-gradient(135deg, #ff9f1c 0%, #ff7900 100%);
+    color: #1f2328;
+    font-weight: 750;
+    letter-spacing: .01em;
+    box-shadow: none;
+    transition: transform .18s ease, background-color .18s ease;
+}
+.btn-salida:hover {
+    color: #171a1d;
+    background: linear-gradient(135deg, #ffad36 0%, #ff850a 100%);
+    border-color: #e56b00;
+    box-shadow: none;
+    transform: translateY(-2px);
+}
+.btn-salida:focus-visible {
+    color: #171a1d;
+    outline: 2px solid #7a3b00;
+    outline-offset: 2px;
+}
+.btn-salida:active {
+    color: #171a1d !important;
+    transform: translateY(0) scale(.985);
+}
+.icono-salida {
+    width: 1.15rem;
+    height: 1.15rem;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+@media (prefers-reduced-motion: reduce) {
+    .btn-salida {
+        transition: none;
+    }
+}
+
+/* Pulso suave y ligero del indicador mientras el practicante está en la empresa */
+.luz-en-empresa {
+    transform-origin: center;
+    animation: pulso-en-empresa 1.6s ease-in-out infinite;
+}
+@keyframes pulso-en-empresa {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .45; transform: scale(.84); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .luz-en-empresa { animation: none; }
+}

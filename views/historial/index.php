@@ -29,15 +29,15 @@ $paginaActual = $_GET["pagina"] ?? "historial";
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
-    <link rel="stylesheet" href="views/historial/css/style.css?v=20261114-2">
+    <link rel="stylesheet" href="views/historial/css/style.css?v=20261116-1">
 
-<script>
-    try {
-        document.documentElement.dataset.theme = localStorage.getItem('sistema-horario-theme') || 'dark';
-    } catch (error) {
-        document.documentElement.dataset.theme = 'dark';
-    }
-</script>
+    <script>
+        try {
+            document.documentElement.dataset.theme = localStorage.getItem('sistema-horario-theme') || 'dark';
+        } catch (error) {
+            document.documentElement.dataset.theme = 'dark';
+        }
+    </script>
 </head>
 
 <body>
@@ -48,7 +48,7 @@ $paginaActual = $_GET["pagina"] ?? "historial";
         <div class="container">
 
             <a class="navbar-brand fw-bold" href="/Sistema_horario/">
-                ISHUME - Productora Audiovisual
+                ISHUME
             </a>
 
             <button class="navbar-toggler" type="button"
@@ -112,7 +112,7 @@ $paginaActual = $_GET["pagina"] ?? "historial";
     <!-- CONTENIDO -->
     <div class="container mt-5">
 
-        <h2 class="titulo mb-4">
+        <h2 class="titulo mb-4 titulo-vista">
             Historial de asistencia
         </h2>
 
@@ -276,7 +276,7 @@ $paginaActual = $_GET["pagina"] ?? "historial";
     </script>
 
     <script>
-        (function () {
+        (function() {
             const root = document.documentElement;
             const toggle = document.querySelector('[data-theme-toggle]');
             if (!toggle) return;
@@ -288,7 +288,7 @@ $paginaActual = $_GET["pagina"] ?? "historial";
                 toggle.setAttribute('aria-checked', String(isDark));
             }
 
-            toggle.addEventListener('click', function () {
+            toggle.addEventListener('click', function() {
                 const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
                 root.dataset.theme = nextTheme;
                 try {

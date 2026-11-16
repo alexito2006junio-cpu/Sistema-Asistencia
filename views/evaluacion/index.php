@@ -31,7 +31,7 @@ $mes = $mes ?? date("Y-m");
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
-    <link rel="stylesheet" href="views/evaluacion/css/style.css?v=20261114-2">
+    <link rel="stylesheet" href="views/evaluacion/css/style.css?v=20261116-2">
 
 <script>
     try {
@@ -49,7 +49,7 @@ $mes = $mes ?? date("Y-m");
         <div class="container">
 
             <a class="navbar-brand" href="/Sistema_horario/">
-                ISHUME - Productora Audiovisual
+                ISHUME
             </a>
 
             <button class="navbar-toggler" type="button"
@@ -132,7 +132,7 @@ $mes = $mes ?? date("Y-m");
     <div class="container py-4">
 
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-            <h2 class="titulo mb-0">Notas mensuales</h2>
+            <h2 class="titulo mb-0 titulo-vista">Notas mensuales</h2>
 
             <div class="d-flex flex-wrap gap-2">
                 <a href="index.php?pagina=evaluacion&accion=exportar&mes=<?= urlencode($mes) ?>"

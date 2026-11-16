@@ -664,3 +664,47 @@ html[data-theme="dark"] .alert-secondary {
     border-color: #626970;
     color: #e1e5e9;
 }
+
+/* Marca de la empresa en la barra de navegación */
+.navbar .navbar-brand {
+    font-family: "Arial Black", Arial, sans-serif;
+    font-weight: 900 !important;
+    font-size: 30px;
+    letter-spacing: .035em;
+}
+
+
+.titulo-vista {
+    font-size: 28px !important;
+}
+
+/* Color uniforme de navegación y tarjetas de tabla en modo oscuro */
+.navbar.navbar-dark {
+    background-color: #111 !important;
+}
+html[data-theme="dark"] table.tabla-movil > tbody > tr {
+    background: var(--app-surface) !important;
+    background-color: var(--app-surface) !important;
+    color: var(--app-text);
+    border-color: var(--app-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .22);
+}
+html[data-theme="dark"] table.tabla-movil > tbody > tr > td {
+    background: transparent !important;
+    color: var(--app-text) !important;
+    border-color: var(--app-border) !important;
+}
+html[data-theme="dark"] table.tabla-movil > tbody > tr > td::before {
+    color: var(--app-muted) !important;
+}
+
+/* En modo claro, conserva texto claro sobre encabezados de tabla oscuros */
+html[data-theme="light"] .card .table-dark,
+html[data-theme="light"] .card .table-dark th,
+html[data-theme="light"] .tabla-contenedor .table-dark,
+html[data-theme="light"] .tabla-contenedor .table-dark th {
+    --bs-table-bg: #212529;
+    --bs-table-color: #fff;
+    background-color: #212529 !important;
+    color: #fff !important;
+}

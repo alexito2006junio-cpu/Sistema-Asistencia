@@ -20,7 +20,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
-    <link rel="stylesheet" href="views/asistencia/css/style.css?v=20261114-2">
+    <link rel="stylesheet" href="views/asistencia/css/style.css?v=20261116-4">
 
 <script>
     try {
@@ -42,7 +42,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
         <div class="container">
 
             <a class="navbar-brand fw-bold" href="/Sistema_horario/">
-                ISHUME - Productora Audiovisual
+                ISHUME
             </a>
 
       <button class="navbar-toggler" type="button"
@@ -106,7 +106,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 
             <div>
-                <h2 class="fw-bold mb-1">
+                <h2 class="fw-bold mb-1 titulo-vista">
                     Registrar asistencia
                 </h2>
 
@@ -116,9 +116,6 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
             </div>
 
             <div class="text-end">
-                <div class="text-muted small">
-                    Hora actual
-                </div>
 
                 <div class="text-center mb-4">
                     <h2 id="reloj">00:00:00</h2>
@@ -206,7 +203,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                                         <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
 
                                             <span
-                                                class="bg-success rounded-circle"
+                                                class="bg-success rounded-circle luz-en-empresa"
                                                 style="width: 12px; height: 12px;"></span>
 
                                             <span class="text-success fw-bold">
@@ -224,11 +221,15 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
 
                                         <button
                                             type="button"
-                                            class="btn btn-danger btn-salida mt-3 w-100"
+                                            class="btn btn-salida mt-3 w-100"
                                             data-id="<?= $practicante["id_practicante"] ?>"
                                             data-nombre="<?= htmlspecialchars($practicante["nombres"] . " " . $practicante["apellidos"]) ?>">
-                                            Registrar salida
-                                        </button>
+                                            <svg class="icono-salida" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <path d="M14 7l5 5-5 5M19 12H8" />
+                                                <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7" />
+                                            </svg>
+                                            <span>Registrar salida</span>
+                                            </button>
 
                                     <?php else: ?>
 
@@ -319,7 +320,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                                         <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
 
                                             <span
-                                                class="bg-success rounded-circle"
+                                                class="bg-success rounded-circle luz-en-empresa"
                                                 style="width: 12px; height: 12px;"></span>
 
                                             <span class="text-success fw-bold">
@@ -337,11 +338,15 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
 
                                         <button
                                             type="button"
-                                            class="btn btn-danger btn-salida mt-3 w-100"
+                                            class="btn btn-salida mt-3 w-100"
                                             data-id="<?= $practicante["id_practicante"] ?>"
                                             data-nombre="<?= htmlspecialchars($practicante["nombres"] . " " . $practicante["apellidos"]) ?>">
-                                            Registrar salida
-                                        </button>
+                                            <svg class="icono-salida" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <path d="M14 7l5 5-5 5M19 12H8" />
+                                                <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7" />
+                                            </svg>
+                                            <span>Registrar salida</span>
+                                            </button>
 
                                     <?php else: ?>
 
@@ -400,9 +405,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
 
                             <div class="col-md-6 col-lg-4">
 
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-primary w-100 p-4 btn-practicante"
+                                <div class="btn btn-outline-primary w-100 p-4 btn-practicante"
                                     data-id="<?= $practicante["id_practicante"] ?>"
                                     data-nombre="<?= htmlspecialchars($practicante["nombres"] . " " . $practicante["apellidos"]) ?>">
 
@@ -432,7 +435,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                                         <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
 
                                             <span
-                                                class="bg-success rounded-circle"
+                                                class="bg-success rounded-circle luz-en-empresa"
                                                 style="width: 12px; height: 12px;"></span>
 
                                             <span class="text-success fw-bold">
@@ -450,11 +453,15 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
 
                                         <button
                                             type="button"
-                                            class="btn btn-danger btn-salida mt-3 w-100"
+                                            class="btn btn-salida mt-3 w-100"
                                             data-id="<?= $practicante["id_practicante"] ?>"
                                             data-nombre="<?= htmlspecialchars($practicante["nombres"] . " " . $practicante["apellidos"]) ?>">
-                                            Registrar salida
-                                        </button>
+                                            <svg class="icono-salida" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <path d="M14 7l5 5-5 5M19 12H8" />
+                                                <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7" />
+                                            </svg>
+                                            <span>Registrar salida</span>
+                                            </button>
 
                                     <?php else: ?>
 
@@ -489,7 +496,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                                         </div>
 
                                     <?php endif; ?>
-                                </button>
+                                </div>
 
                             </div>
 

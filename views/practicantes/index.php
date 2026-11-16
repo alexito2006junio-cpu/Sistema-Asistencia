@@ -60,7 +60,7 @@ $paginaActual = $_GET["pagina"] ?? "practicantes";
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
-    <link rel="stylesheet" href="views/practicantes/css/style.css?v=20261114-2">
+    <link rel="stylesheet" href="views/practicantes/css/style.css?v=20261116-2">
 
 <script>
     try {
@@ -76,7 +76,7 @@ $paginaActual = $_GET["pagina"] ?? "practicantes";
         <div class="container">
 
             <a class="navbar-brand fw-bold" href="/Sistema_horario/">
-                ISHUME - Productora Audiovisual
+                ISHUME
             </a>
 
            <button class="navbar-toggler" type="button"
@@ -137,7 +137,7 @@ $paginaActual = $_GET["pagina"] ?? "practicantes";
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 
             <div>
-                <h1 class="fw-bold">Practicantes</h1>
+                <h1 class="fw-bold titulo-vista">Practicantes</h1>
                 <p class="text-muted mb-0">
                     Gestión de practicantes
                 </p>
