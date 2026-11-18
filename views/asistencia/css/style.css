@@ -713,3 +713,129 @@ html[data-theme="dark"] table.tabla-movil > tbody > tr > td::before {
 @media (prefers-reduced-motion: reduce) {
     .luz-en-empresa { animation: none; }
 }
+
+/* Panel resumen de asistencia con la paleta de ISHUME */
+html[data-theme="dark"] .resumen-dia {
+    --resumen-fondo: #303438;
+    --resumen-tarjeta: #292d31;
+    --resumen-hover: #383d42;
+    --resumen-texto: #f2f4f6;
+    --resumen-secundario: #c4cbd2;
+}
+html[data-theme="light"] .resumen-dia {
+    --resumen-fondo: #ffffff;
+    --resumen-tarjeta: #f5f6f8;
+    --resumen-hover: #fff8ef;
+    --resumen-texto: #252a31;
+    --resumen-secundario: #59636e;
+}
+.resumen-dia {
+    padding: 1.15rem;
+    border: 1px solid var(--app-border);
+    border-radius: .85rem;
+    background: var(--resumen-fondo);
+    color: var(--resumen-texto);
+}
+.resumen-dia-encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: .9rem;
+}
+.resumen-dia-encabezado h3 {
+    color: var(--resumen-texto) !important;
+}
+.resumen-programados {
+    padding: .25rem .65rem;
+    border: 1px solid rgba(255, 136, 0, .55);
+    border-radius: 999px;
+    color: #ff9a2f !important;
+    font-weight: 600;
+}
+html[data-theme="light"] .resumen-programados {
+    color: #a94f00 !important;
+    background: #fff8ef;
+}
+.resumen-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .8rem;
+}
+.resumen-metrica {
+    appearance: none;
+    -webkit-appearance: none;
+    display: flex;
+    width: 100%;
+    min-height: 88px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: .25rem;
+    padding: .8rem 1rem;
+    border: 1px solid var(--app-border) !important;
+    border-top: 3px solid #ff8800 !important;
+    border-radius: .7rem;
+    background: var(--resumen-tarjeta) !important;
+    color: var(--resumen-texto) !important;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: transform .16s ease, border-color .16s ease, background-color .16s ease;
+}
+.resumen-metrica:hover,
+.resumen-metrica.activo {
+    border-color: #ff8800 !important;
+    background: var(--resumen-hover) !important;
+    transform: translateY(-2px);
+}
+.resumen-metrica.activo {
+    border-width: 2px !important;
+    border-top-width: 4px !important;
+}
+.resumen-metrica:focus-visible {
+    outline: 2px solid #ff8800;
+    outline-offset: 2px;
+}
+.metrica-valor {
+    color: #ff9a2f;
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+html[data-theme="light"] .metrica-valor {
+    color: #a94f00;
+}
+.metrica-etiqueta {
+    color: var(--resumen-secundario);
+    font-size: .9rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+html[data-theme="dark"] .resumen-metrica.activo .metrica-valor {
+    color: #ff9a2f !important;
+}
+html[data-theme="dark"] .resumen-metrica.activo .metrica-etiqueta {
+    color: #f2f4f6 !important;
+}
+html[data-theme="light"] .resumen-metrica.activo .metrica-valor {
+    color: #a94f00 !important;
+}
+html[data-theme="light"] .resumen-metrica.activo .metrica-etiqueta {
+    color: #252a31 !important;
+}
+.resumen-ayuda {
+    margin-top: .75rem;
+    color: var(--resumen-secundario) !important;
+}
+@media (max-width: 991.98px) {
+    .resumen-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .resumen-metrica { transition: none; }
+}
+.grupo-turno-row[hidden],
+.grupo-turno-row > [hidden],
+#mensajeSinResultadosFiltro[hidden] {
+    display: none !important;
+}

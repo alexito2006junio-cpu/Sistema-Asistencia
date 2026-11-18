@@ -5,6 +5,29 @@
 
 <?php
 $paginaActual = $_GET["pagina"] ?? "asistencia";
+$resumenDia = $resumenDia ?? [
+    "programados" => 0,
+    "presentes" => 0,
+    "pendientes" => 0,
+    "tardanzas" => 0,
+    "salidas" => 0
+];
+$filtrosTarjeta = static function ($practicante) {
+    if (empty($practicante["hora_llegada"])) {
+        $filtros = ($practicante["estado_asistencia"] ?? "") === "JUSTIFICADO"
+            ? ["justificados"]
+            : ["pendientes"];
+    } elseif (empty($practicante["hora_salida_real"])) {
+        $filtros = ["presentes"];
+    } else {
+        $filtros = ["salidas"];
+    }
+    if (($practicante["estado_asistencia"] ?? "") === "TARDANZA") {
+        $filtros[] = "tardanzas";
+    }
+
+    return implode(" ", $filtros);
+};
 ?>
 
 <!DOCTYPE html>
@@ -20,7 +43,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
-    <link rel="stylesheet" href="views/asistencia/css/style.css?v=20261116-4">
+    <link rel="stylesheet" href="views/asistencia/css/style.css?v=20261116-9">
 
 <script>
     try {
@@ -126,6 +149,31 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
         </div>
 
 
+        <section class="resumen-dia mb-4" aria-labelledby="tituloResumenDia">
+            <div class="resumen-dia-encabezado">
+                <h3 id="tituloResumenDia" class="h5 fw-bold mb-1">Resumen de hoy</h3>
+                <span class="resumen-programados small"><?= (int)$resumenDia["programados"] ?> programados hoy</span>
+            </div>
+            <div class="resumen-grid" aria-label="Indicadores de asistencia">
+                <button type="button" class="resumen-metrica metrica-presente" data-filtro-resumen="presentes" aria-pressed="false">
+                    <span class="metrica-valor"><?= (int)$resumenDia["presentes"] ?></span>
+                    <span class="metrica-etiqueta">En la empresa</span>
+                </button>
+                <button type="button" class="resumen-metrica metrica-pendiente" data-filtro-resumen="pendientes" aria-pressed="false">
+                    <span class="metrica-valor"><?= (int)$resumenDia["pendientes"] ?></span>
+                    <span class="metrica-etiqueta">Pendientes</span>
+                </button>
+                <button type="button" class="resumen-metrica metrica-tardanza" data-filtro-resumen="tardanzas" aria-pressed="false">
+                    <span class="metrica-valor"><?= (int)$resumenDia["tardanzas"] ?></span>
+                    <span class="metrica-etiqueta">Tardanzas</span>
+                </button>
+                <button type="button" class="resumen-metrica metrica-salida" data-filtro-resumen="salidas" aria-pressed="false">
+                    <span class="metrica-valor"><?= (int)$resumenDia["salidas"] ?></span>
+                    <span class="metrica-etiqueta">Salidas registradas</span>
+                </button>
+            </div>
+            <p class="resumen-ayuda text-muted small mb-0">Selecciona un indicador para filtrar las tarjetas; vuelve a pulsarlo para mostrar a todos.</p>
+        </section>
         <!-- Practicantes de hoy -->
         <div class="card shadow-sm border-0">
 
@@ -164,7 +212,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                         🌅 Turno mañana
                     </h4>
 
-                    <div class="row g-3 mb-4">
+                    <div class="row g-3 mb-4 grupo-turno-row">
 
                         <?php foreach ($manana as $practicante): ?>
 
@@ -173,7 +221,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                                 <div
 
                                     type="button"
-                                    class="btn btn-outline-primary w-100 p-4 btn-practicante"
+                                    class="btn btn-outline-primary w-100 p-4 btn-practicante" data-filtros="<?= htmlspecialchars($filtrosTarjeta($practicante), ENT_QUOTES) ?>"
                                     data-id="<?= $practicante["id_practicante"] ?>"
                                     data-nombre="<?= htmlspecialchars($practicante["nombres"] . " " . $practicante["apellidos"]) ?>">
 
@@ -282,7 +330,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                         ☀️ Turno tarde
                     </h4>
 
-                    <div class="row g-3 mb-4">
+                    <div class="row g-3 mb-4 grupo-turno-row">
 
                         <?php foreach ($tarde as $practicante): ?>
 
@@ -290,7 +338,7 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
 
                                 <div
                                     type="button"
-                                    class="btn btn-outline-primary w-100 p-4 btn-practicante"
+                                    class="btn btn-outline-primary w-100 p-4 btn-practicante" data-filtros="<?= htmlspecialchars($filtrosTarjeta($practicante), ENT_QUOTES) ?>"
                                     data-id="<?= $practicante["id_practicante"] ?>"
                                     data-nombre="<?= htmlspecialchars($practicante["nombres"] . " " . $practicante["apellidos"]) ?>">
 
@@ -399,13 +447,13 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                         🌙 Turno tarde-noche
                     </h4>
 
-                    <div class="row g-3">
+                    <div class="row g-3 grupo-turno-row">
 
                         <?php foreach ($tardeNoche as $practicante): ?>
 
                             <div class="col-md-6 col-lg-4">
 
-                                <div class="btn btn-outline-primary w-100 p-4 btn-practicante"
+                                <div class="btn btn-outline-primary w-100 p-4 btn-practicante" data-filtros="<?= htmlspecialchars($filtrosTarjeta($practicante), ENT_QUOTES) ?>"
                                     data-id="<?= $practicante["id_practicante"] ?>"
                                     data-nombre="<?= htmlspecialchars($practicante["nombres"] . " " . $practicante["apellidos"]) ?>">
 
@@ -507,6 +555,9 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
                 <?php endif; ?>
 
 
+                <div id="mensajeSinResultadosFiltro" class="alert alert-info mt-3 mb-0" hidden>
+                    No hay practicantes para este indicador.
+                </div>
                 <!-- SI NO HAY PRACTICANTES -->
                 <?php if (
                     count($manana) === 0 &&
@@ -530,6 +581,49 @@ $paginaActual = $_GET["pagina"] ?? "asistencia";
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        const botonesResumen = document.querySelectorAll("[data-filtro-resumen]");
+        let filtroResumenActivo = "todos";
+
+        function aplicarFiltroResumen(filtro) {
+            filtroResumenActivo = filtro;
+
+            document.querySelectorAll(".btn-practicante[data-filtros]").forEach(function(tarjeta) {
+                const estados = tarjeta.dataset.filtros.split(/\s+/);
+                const visible = filtro === "todos" || estados.includes(filtro);
+                const columna = tarjeta.closest(".col-md-6, .col-lg-4");
+                if (columna) columna.hidden = !visible;
+            });
+
+            document.querySelectorAll(".grupo-turno-row").forEach(function(fila) {
+                const hayTarjetas = Array.from(fila.children).some(function(columna) {
+                    return !columna.hidden;
+                });
+                fila.hidden = !hayTarjetas;
+                const tituloTurno = fila.previousElementSibling;
+                if (tituloTurno && /^H[1-6]$/.test(tituloTurno.tagName)) {
+                    tituloTurno.hidden = !hayTarjetas;
+                }
+            });
+
+            const hayTurnoVisible = Array.from(document.querySelectorAll(".grupo-turno-row")).some(function(fila) {
+                return !fila.hidden;
+            });
+            const avisoSinResultados = document.getElementById("mensajeSinResultadosFiltro");
+            if (avisoSinResultados) {
+                avisoSinResultados.hidden = filtro === "todos" || hayTurnoVisible;
+            }
+            botonesResumen.forEach(function(boton) {
+                boton.setAttribute("aria-pressed", String(boton.dataset.filtroResumen === filtro));
+                boton.classList.toggle("activo", boton.dataset.filtroResumen === filtro);
+            });
+        }
+
+        botonesResumen.forEach(function(boton) {
+            boton.addEventListener("click", function() {
+                const solicitado = this.dataset.filtroResumen;
+                aplicarFiltroResumen(filtroResumenActivo === solicitado ? "todos" : solicitado);
+            });
+        });
         const botones = document.querySelectorAll(".btn-practicante");
 
         // Evita que el nombre se interprete como HTML dentro de las alertas

@@ -29,6 +29,7 @@ class AsistenciaController
         $dia = $dias[(int)date("N")];
 
         $practicantes = $this->modeloPracticante->obtenerPorDia($dia);
+        $resumenDia = $this->modeloPracticante->obtenerResumenPorDia($dia);
 
 
         require __DIR__ . "/../views/asistencia/index.php";

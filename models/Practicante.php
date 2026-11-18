@@ -99,6 +99,63 @@ class Practicante
     }
 
 
+    public function obtenerResumenPorDia($dia)
+    {
+        $fecha = date("Y-m-d");
+        $resumenVacio = [
+            "programados" => 0,
+            "presentes" => 0,
+            "pendientes" => 0,
+            "tardanzas" => 0,
+            "salidas" => 0
+        ];
+
+        $sql = "SELECT
+                    COUNT(DISTINCT p.id_practicante) AS programados,
+                    COUNT(DISTINCT CASE
+                        WHEN a.hora_llegada IS NOT NULL AND a.hora_salida IS NULL
+                        THEN p.id_practicante END) AS presentes,
+                    COUNT(DISTINCT CASE
+                        WHEN a.hora_llegada IS NULL
+                            AND (a.estado IS NULL OR a.estado <> 'JUSTIFICADO')
+                        THEN p.id_practicante END) AS pendientes,
+                    COUNT(DISTINCT CASE
+                        WHEN a.estado = 'TARDANZA'
+                        THEN p.id_practicante END) AS tardanzas,
+                    COUNT(DISTINCT CASE
+                        WHEN a.hora_salida IS NOT NULL
+                        THEN p.id_practicante END) AS salidas
+                FROM Practicantes p
+                INNER JOIN Horarios h
+                    ON p.id_practicante = h.id_practicante
+                LEFT JOIN Asistencia a
+                    ON p.id_practicante = a.id_practicante
+                    AND a.fecha = ?
+                WHERE h.dia_semana = ?
+                    AND p.activo = 1";
+
+        $stmt = $this->conexion->prepare($sql);
+        if (!$stmt) {
+            return $resumenVacio;
+        }
+
+        $stmt->bind_param("ss", $fecha, $dia);
+        if (!$stmt->execute()) {
+            return $resumenVacio;
+        }
+
+        $resultado = $stmt->get_result()->fetch_assoc();
+        if (!$resultado) {
+            return $resumenVacio;
+        }
+
+        foreach ($resumenVacio as $clave => $valor) {
+            $resumenVacio[$clave] = (int)($resultado[$clave] ?? 0);
+        }
+
+        return $resumenVacio;
+    }
+
     public function obtenerPorDia($dia)
     {
         $fecha = date("Y-m-d");
@@ -110,7 +167,8 @@ class Practicante
                 h.hora_entrada,
                 h.hora_salida,
                 a.hora_llegada,
-                a.hora_salida AS hora_salida_real
+                a.hora_salida AS hora_salida_real,
+                a.estado AS estado_asistencia
             FROM Practicantes p
 
             INNER JOIN Horarios h
